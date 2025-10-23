@@ -16,8 +16,12 @@ func Login() (string, string) {
 	username = strings.TrimSpace(username)
 
 	fmt.Print("Enter password: ")
-	bytePassword, _ := term.ReadPassword(int(os.Stdin.Fd()))
-	password := string(bytePassword)
+	bytePassword, err := term.ReadPassword(int(os.Stdin.Fd()))
+	if err != nil {
+		fmt.Println("\nError reading password:", err)
+		return "", ""
+	}
+	password := strings.TrimSpace(string(bytePassword))
 	fmt.Println()
 
 	return username, password

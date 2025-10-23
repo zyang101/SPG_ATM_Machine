@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 	"SPG_ATM_Machine/auth"
+	"SPG_ATM_Machine/customer"
 )
 
 func typeInput(prompt string) string {
@@ -17,13 +18,14 @@ func main() {
 	fmt.Println("Welcome to JP Goldman Stanley ATM!")
 
 	for {
-		answer := strings.ToUpper(typeInput("Are you an existing customer? (Y/N): "))
+		answer := strings.ToUpper(typeInput("Are you an existing customer? (Y/N/q): "))
 
 		if answer == "Y" {
 			fmt.Println("Great! Please log in.")
 			username, password := auth.Login()
 			fmt.Println("You entered:", username, password)
-			break
+			customer.Menu(username)
+
 
 		} else if answer == "N" {
 			fmt.Println("Let's create a new account for you.")
@@ -48,10 +50,14 @@ func main() {
 			fmt.Println("\nPlease log in to your new account:")
 			username, password := auth.Login()
 			fmt.Println("You entered:", username, password)
-			break
+			customer.Menu(username)
 
+		} else if answer == "Q"{
+			fmt.Println("You entered q. Thanks for banking with us!")
+			break
 		} else {
-			fmt.Println("Please answer Y or N.")
+			fmt.Println("Please answer Y, N or q.")
 		}
 	}
+
 }
