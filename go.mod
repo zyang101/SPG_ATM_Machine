@@ -1,4 +1,4 @@
-module atm
+module SPG_ATM_Machine
 
 go 1.25.3
 

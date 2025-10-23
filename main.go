@@ -1,27 +1,18 @@
 package main
 
 import (
-	"bufio"
-	"fmt"
-	"os"
-	"strings"
 
-	"golang.org/x/term"
+	"fmt"
+    // "SPG_ATM_Machine/db"
+    "SPG_ATM_Machine/auth"
+	// "SPG_ATM_Machine/customer"
+	// "SPG_ATM_Machine/admin"
 )
 
 func main() {
-	reader := bufio.NewReader(os.Stdin)
+	fmt.Println("Welcome to JP Goldman Stanley ATM!")
 
-	fmt.Print("Enter username: ")
-	username, _ := reader.ReadString('\n')
-	username = strings.TrimSpace(username)
+	username, password := auth.Login()
 
-	fmt.Print("Enter password: ")
-	bytePassword, _ := term.ReadPassword(int(os.Stdin.Fd()))
-	password := string(bytePassword)
-	fmt.Println()
-
-	fmt.Println("You entered:")
-	fmt.Println("Username:", username)
-	fmt.Println("Password:", password)
+    fmt.Println("Logged in as:", username, "with role:", password)
 }
