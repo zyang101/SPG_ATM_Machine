@@ -3,7 +3,6 @@ package handler
 import (
 	"fmt"
 	"SPG_ATM_Machine/utils"
-
 )
 
 func viewChoices()  {

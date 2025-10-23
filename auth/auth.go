@@ -8,18 +8,17 @@ import (
 	"fmt"
 	"os"
 	"strings"
-
 	"golang.org/x/term"
 )
 
 func Login() (bool, string) {
 	reader := bufio.NewReader(os.Stdin)
 
-	fmt.Print("Enter username: ")
+	fmt.Println("Enter username: ")
 	username, _ := reader.ReadString('\n')
 	username = strings.TrimSpace(username)
 
-	fmt.Print("Enter PIN: ")
+	fmt.Println("Enter PIN: ")
 	bytePin, err := term.ReadPassword(int(os.Stdin.Fd()))
 	if err != nil {
 		fmt.Println("\nError reading password:", err)
@@ -27,16 +26,17 @@ func Login() (bool, string) {
 	}
 	var success bool
 	pin := strings.TrimSpace(string(bytePin))
+	//hard codded for now
 	if pin == "password"	{
 		success = true
+	}	else	{
+		success = false
 	}
-	fmt.Println()
-	success = true
 	return success, username
 }
 
 func RouteUser(username string)	{
-	
+	//hard coded for now
 	userType := "admin"
 	switch userType {
 	case "admin":

@@ -1,10 +1,8 @@
 package main
 
 import (
-	// "SPG_ATM_Machine/admin"
 	"SPG_ATM_Machine/auth"
 	"SPG_ATM_Machine/utils"
-
 	"fmt"
 	"strings"
 )
@@ -14,7 +12,6 @@ func main() {
 	fmt.Println("Welcome to JP Goldman Stanley ATM!")
 	for {
 		answer := strings.ToUpper(utils.TypeInput("Would you like to Login? Y/N\n"))
-
 		if answer == "Y" {
 			isSucess, username  := auth.Login()
 			if isSucess	{
