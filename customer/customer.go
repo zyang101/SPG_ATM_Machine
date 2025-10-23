@@ -2,27 +2,25 @@ package customer
 
 import	(
 	"fmt"
-	"strings"
-
+	"SPG_ATM_Machine/utils"
 )
 
-func typeInput(prompt string) string {
-	var input string
-	fmt.Print(prompt)
-	fmt.Scanln(&input)
-	return strings.TrimSpace(input)
-}
-
-func Menu(username string)	{
-	fmt.Printf("\nWelcome %s! What would you like do to today?\n", username)
+func viewChoices()  {
+    fmt.Println("Enter 0 to view options again")
 	fmt.Println("Enter 1 to Check Balance")
 	fmt.Println("Enter 2 to Deposit Money")
 	fmt.Println("Enter 3 to Withdrawal Money")
 	fmt.Println("Enter 4 to Exit")
-	for {
-		choice := typeInput("Enter your choice (1-4): ")
+}
 
+func Menu(username string)	{
+	fmt.Printf("\nWelcome %s! What would you like do to today?\n", username)
+	viewChoices()
+	for {
+		choice := utils.TypeInput("Enter your choice (0-4): ")
 		switch choice {
+		case "0":
+			viewChoices()
 		case "1":
 			fmt.Println("Your balance is $1,234.56.")
 		case "2":
