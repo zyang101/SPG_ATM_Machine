@@ -5,7 +5,6 @@ import (
     "SPG_ATM_Machine/utils"
 )
 
-
 func viewChoices()  {
     fmt.Println("Enter 0 to view options again")
     fmt.Println("Enter 1 to Create New Customer Account")
@@ -14,30 +13,62 @@ func viewChoices()  {
 	fmt.Println("Enter 4 to Exit")
 }
 
-func createNewUser()    {
-    fmt.Println("Let's create a new account for you.")
-    var newUsername string
-    for {
-        newUsername = utils.TypeInput("Please enter a username: ")
-        //hard coded for now, need to query db for this
-        exists := false
-        if exists {
-            fmt.Println("That username already exists. Please choose another.")
-        } else {
+func createNewUser() {
+	fmt.Println("Let's create a new account for you.")
+
+	var (
+		newUsername       string
+		newPin            string
+		newName           string
+		newDateOfBirth    string
+		floatStartingAmount float64
+	)
+
+	// Username section
+	for {
+		newUsername = utils.TypeInput("Please enter a username: ")
+		// Hardcoded for now, later check DB
+		exists := false
+		if exists {
+			fmt.Println("That username already exists. Please choose another.")
+		} else {
+			break
+		}
+	}
+	for {
+		newPin = utils.TypeInput("Please enter a 6-digit PIN: ")
+		if utils.ValidatePIN(newPin) {
+			break
+		}
+	}
+	for {
+		newName = utils.TypeInput("Please enter your Name: ")
+        if utils.ValidateName(newName) {
             break
         }
-    }
-    newPin := utils.TypeInput("Please enter a PIN: ")
-    newName := utils.TypeInput("Please enter your Name: ")
-    newDateOfBirth := utils.TypeInput("Please enter your date of birth (mm/dd/yr): ")
-    startingAmount := utils.TypeInput("Starting Amount: ")
+	}
+	for {
+		newDateOfBirth = utils.TypeInput("Please enter your date of birth (MM/DD/YYYY): ")
+		if utils.ValidateDate(newDateOfBirth) {
+			break
+		}
+	}
+	for {
+		startingAmount := utils.TypeInput("Starting Amount: ")
+		amount, ok := utils.ParseAmount(startingAmount)
+		if ok {
+			floatStartingAmount = amount
+			break
+		}
+	}
 
-    fmt.Println("Account created successfully!")
-    fmt.Println("Username: ", newUsername)
-    fmt.Println("PIN: ", newPin)
-    fmt.Println("Name: ", newName)
-    fmt.Println("Date of Birth: ", newDateOfBirth)
-    fmt.Println("Starting Amount: ", startingAmount)
+	// Summary
+	fmt.Println("\nAccount created successfully!")
+	fmt.Println("Username: ", newUsername)
+	fmt.Println("PIN: ", newPin)
+	fmt.Println("Name: ", newName)
+	fmt.Println("Date of Birth: ", newDateOfBirth)
+	fmt.Printf("Starting Amount: $%.2f\n\n", floatStartingAmount)
     // update DB
 }
 
