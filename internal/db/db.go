@@ -46,6 +46,7 @@ func Connect() (*sql.DB, error) {
 	transactions := `
 	CREATE TABLE IF NOT EXISTS transactions (
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		user_id int,
 		date TEXT NOT NULL,
 		balance REAL
 	);`

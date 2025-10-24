@@ -1,20 +1,13 @@
 package main
 
 import (
-    "SPG_ATM_Machine/auth"
-    "SPG_ATM_Machine/internal/db"
-    "SPG_ATM_Machine/utils"
-    "fmt"
-    "strings"
+	"SPG_ATM_Machine/auth"
+	"SPG_ATM_Machine/utils"
+	"fmt"
+	"strings"
 )
 
 func main() {
-	db, err := db.Connect()
-	if err != nil {
-		panic(err)
-	}
-	defer db.Close()
-	fmt.Println("SQLITE DB connected")
 	fmt.Println("Welcome to JP Goldman Stanley ATM!")
 	for {
 		answer := strings.ToUpper(utils.TypeInput("Would you like to Login? Y/N"))
@@ -23,7 +16,7 @@ func main() {
 			if isSucess {
 				fmt.Println("Login Successful")
 				auth.RouteUser(username)
-			}	else	{
+			} else {
 				fmt.Println("Login Unsuccessful, Try Again")
 			}
 		} else if answer == "N" {

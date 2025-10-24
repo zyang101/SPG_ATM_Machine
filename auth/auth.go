@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+
 	"golang.org/x/term"
 )
 
@@ -27,17 +28,17 @@ func Login() (bool, string) {
 	var success bool
 	pin := strings.TrimSpace(string(bytePin))
 	//hard codded for now
-	if pin == "012345"	{
+	if pin == "012345" {
 		success = true
-	}	else	{
+	} else {
 		success = false
 	}
 	return success, username
 }
 
-func RouteUser(username string)	{
+func RouteUser(username string) {
 	//hard coded for now
-	userType := "admin"
+	userType := "customer"
 	switch userType {
 	case "admin":
 		admin.Menu(username)
