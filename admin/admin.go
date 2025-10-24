@@ -14,6 +14,33 @@ func viewChoices()  {
 	fmt.Println("Enter 4 to Exit")
 }
 
+func createNewUser()    {
+    fmt.Println("Let's create a new account for you.")
+    var newUsername string
+    for {
+        newUsername = utils.TypeInput("Please enter a username: ")
+        //hard coded for now, need to query db for this
+        exists := false
+        if exists {
+            fmt.Println("That username already exists. Please choose another.")
+        } else {
+            break
+        }
+    }
+    newPin := utils.TypeInput("Please enter a PIN: ")
+    newName := utils.TypeInput("Please enter your Name: ")
+    newDateOfBirth := utils.TypeInput("Please enter your date of birth (mm/dd/yr): ")
+    startingAmount := utils.TypeInput("Starting Amount: ")
+
+    fmt.Println("Account created successfully!")
+    fmt.Println("Username: ", newUsername)
+    fmt.Println("PIN: ", newPin)
+    fmt.Println("Name: ", newName)
+    fmt.Println("Date of Birth: ", newDateOfBirth)
+    fmt.Println("Starting Amount: ", startingAmount)
+    // update DB
+}
+
 func Menu(username string) {
     fmt.Printf("Welcome, Admin %s! What would you like do to today?\n", username)
     viewChoices()
@@ -24,22 +51,7 @@ func Menu(username string) {
         case "0":
             viewChoices()
 		case "1":
-            fmt.Println("Let's create a new account for you.")
-			var newUsername string
-			for {
-				newUsername = utils.TypeInput("Please enter a username: ")
-
-				exists := false
-				if exists {
-					fmt.Println("That username already exists. Please choose another.")
-				} else {
-					break
-				}
-            }
-			newPin := utils.TypeInput("Please enter a PIN: ")
-			fmt.Println("Account created successfully!")
-			fmt.Println("Username:", newUsername)
-			fmt.Println("PIN:", newPin)
+            createNewUser()
 		case "2":
 			fmt.Println("Deposit feature coming soon!")
 		case "3":

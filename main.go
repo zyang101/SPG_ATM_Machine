@@ -7,11 +7,10 @@ import (
 	"strings"
 )
 
-
 func main() {
 	fmt.Println("Welcome to JP Goldman Stanley ATM!")
 	for {
-		answer := strings.ToUpper(utils.TypeInput("Would you like to Login? Y/N\n"))
+		answer := strings.ToUpper(utils.TypeInput("Would you like to Login? Y/N"))
 		if answer == "Y" {
 			isSucess, username  := auth.Login()
 			if isSucess	{

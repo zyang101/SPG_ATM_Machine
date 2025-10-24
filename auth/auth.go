@@ -37,7 +37,7 @@ func Login() (bool, string) {
 
 func RouteUser(username string)	{
 	//hard coded for now
-	userType := "admin"
+	userType := "customer"
 	switch userType {
 	case "admin":
 		admin.Menu(username)

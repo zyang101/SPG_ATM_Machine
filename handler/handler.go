@@ -6,7 +6,7 @@ import (
 )
 
 func viewChoices()  {
-    fmt.Println("Enter 0 to view options again")
+    fmt.Println("Enter 0 to View Options Again")
     fmt.Println("Enter 1 to View Total ATM Cash")
 	fmt.Println("Enter 2 to Deposit Cash to ATM")
 	fmt.Println("Enter 3 to Withdraw Cash from ATM")
