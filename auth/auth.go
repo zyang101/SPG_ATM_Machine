@@ -27,7 +27,7 @@ func Login() (bool, string) {
 	var success bool
 	pin := strings.TrimSpace(string(bytePin))
 	//hard codded for now
-	if pin == "password"	{
+	if pin == "012345"	{
 		success = true
 	}	else	{
 		success = false
@@ -37,7 +37,7 @@ func Login() (bool, string) {
 
 func RouteUser(username string)	{
 	//hard coded for now
-	userType := "customer"
+	userType := "admin"
 	switch userType {
 	case "admin":
 		admin.Menu(username)

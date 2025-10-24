@@ -23,7 +23,7 @@ func main() {
 			if isSucess {
 				fmt.Println("Login Successful")
 				auth.RouteUser(username)
-			} else {
+			}	else	{
 				fmt.Println("Login Unsuccessful, Try Again")
 			}
 		} else if answer == "N" {
