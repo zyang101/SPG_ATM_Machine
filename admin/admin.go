@@ -53,9 +53,9 @@ func Menu(username string) {
 		case "1":
             createNewUser()
 		case "2":
-			fmt.Println("Deposit feature coming soon!")
+			fmt.Println("View Deposit/Withdrawl feature coming soon!")
 		case "3":
-			fmt.Println("Withdrawal feature coming soon!")
+			fmt.Println("Set Deposit/Withdrawal feature coming soon!")
 		case "4":
 			fmt.Println("Thank you for banking with JP Goldman Stanley!")
 			return

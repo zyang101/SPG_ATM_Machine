@@ -24,9 +24,9 @@ func Menu(username string) {
 		case "1":
 			fmt.Println("ATM Total Balance is $1,234.56.")
 		case "2":
-			fmt.Println("Deposit feature coming soon!")
+			utils.Deposit(username)
 		case "3":
-			fmt.Println("Withdrawal feature coming soon!")
+			utils.Withdraw(username)
 		case "4":
 			fmt.Println("Thank you for banking with JP Goldman Stanley!")
 			return

@@ -8,3 +8,4 @@ import (
 
 var DB *sql.DB
 
+//implement db...

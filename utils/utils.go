@@ -32,7 +32,6 @@ func parseAmount(amountStr string) (float64, bool) {
 
 func Deposit(username string)	{
 	depositAmount := TypeInput("Enter Amount to Deposit: ")
-
 	floatAmount, ok := parseAmount(depositAmount)
 	if !ok	{
 		return
@@ -49,6 +48,5 @@ func Withdraw(username string)	{
 		return
 	}
 	// add db change here
-
-	fmt.Printf("Withdrew $%.2f from %f's account\n", floatAmount, username)
+	fmt.Printf("Withdrew $%.2f from %s's account\n", floatAmount, username)
 }

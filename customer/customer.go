@@ -26,7 +26,7 @@ func Menu(username string)	{
 		case "2":
 			utils.Deposit(username)
 		case "3":
-			utils.Deposit(username)
+			utils.Withdraw(username)
 		case "4":
 			fmt.Println("Thank you for banking with JP Goldman Stanley!")
 			return
