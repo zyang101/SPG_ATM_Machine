@@ -57,7 +57,6 @@ func createNewUser() {
 		}
 	}
 
-	// Call CreateUser from db package
 	database, err := db.Connect()
 	if err != nil {
 		fmt.Println("Error connecting to database:", err)
@@ -83,6 +82,13 @@ func createNewUser() {
 
 func Menu(username string) {
 	fmt.Printf("Welcome, Admin %s! What would you like do to today?\n", username)
+	database, err := db.Connect()
+	if err != nil {
+		fmt.Println("Error connecting to database:", err)
+		return
+	}
+	defer database.Close()
+	
 	viewChoices()
 	for {
 		choice := utils.TypeInput("Enter your choice (0-4): ")
@@ -94,6 +100,11 @@ func Menu(username string) {
 			createNewUser()
 		case "2":
 			fmt.Println("View Deposit/Withdrawl feature coming soon!")
+
+			err = api.ShowTransactions(database)
+			if err != nil {
+				fmt.Println("Error:", err)
+			}
 		case "3":
 			fmt.Println("Set Deposit/Withdrawal feature coming soon!")
 		case "4":

@@ -5,7 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	"golang.org/x/crypto/bcrypt"
-
+	"strings"
 )
 
 // Create a new user
@@ -153,4 +153,42 @@ func ListUsers(db *sql.DB) ([]models.User, error) {
 		users = append(users, u)
 	}
 	return users, nil
+}
+
+func ShowTransactions(db *sql.DB) error {
+	rows, err := db.Query(`
+		SELECT t.id, u.username, t.date, t.balance
+		FROM transactions t
+		LEFT JOIN users u ON t.user_id = u.id
+		ORDER BY t.id ASC
+	`)
+	if err != nil {
+		return fmt.Errorf("failed to query transactions: %v", err)
+	}
+	defer rows.Close()
+
+	fmt.Println("\n===== TRANSACTION HISTORY =====")
+	fmt.Printf("%-5s | %-15s | %-20s | %-10s\n", "ID", "Username", "Date", "Amount ($)")
+	fmt.Println(strings.Repeat("-", 60))
+
+	for rows.Next() {
+		var id int
+		var username, date string
+		var amount float64
+
+		err := rows.Scan(&id, &username, &date, &amount)
+		if err != nil {
+			return fmt.Errorf("failed to scan transaction: %v", err)
+		}
+
+		fmt.Printf("%-5d | %-15s | %-20s | %10.2f\n", id, username, date, amount)
+	}
+
+	if err = rows.Err(); err != nil {
+		return fmt.Errorf("error reading transactions: %v", err)
+	}
+
+	fmt.Println(strings.Repeat("-", 60))
+	fmt.Println("End of transaction log.")
+	return nil
 }
