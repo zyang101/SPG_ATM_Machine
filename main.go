@@ -14,7 +14,6 @@ func main() {
 		if answer == "Y" {
 			isSucess, username := auth.Login()
 			if isSucess {
-				fmt.Println("Login Successful")
 				auth.RouteUser(username)
 			} else {
 				fmt.Println("Username or Password is incorrect, Try Again")
