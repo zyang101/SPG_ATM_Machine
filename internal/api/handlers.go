@@ -192,3 +192,47 @@ func ShowTransactions(db *sql.DB) error {
 	fmt.Println("End of transaction log.")
 	return nil
 }
+
+
+func UpdateWithdrawalLimit(db *sql.DB, newLimit float64) error {
+	if newLimit < 0 {
+		return fmt.Errorf("withdrawal limit cannot be negative")
+	}
+
+	_, err := db.Exec("UPDATE atm SET withdrawal_limit = ? WHERE id = 1", newLimit)
+	if err != nil {
+		return fmt.Errorf("failed to update withdrawal limit: %v", err)
+	}
+
+	fmt.Printf("ATM withdrawal limit updated to $%.2f\n", newLimit)
+	return nil
+}
+
+func UpdateDepositLimit(db *sql.DB, newLimit float64) error {
+	if newLimit < 0 {
+		return fmt.Errorf("deposit limit cannot be negative")
+	}
+
+	_, err := db.Exec("UPDATE atm SET deposit_limit = ? WHERE id = 1", newLimit)
+	if err != nil {
+		return fmt.Errorf("failed to update deposit limit: %v", err)
+	}
+
+	fmt.Printf("ATM deposit limit updated to $%.2f\n", newLimit)
+	return nil
+}
+
+func GetATMLimits(db *sql.DB) (float64, float64, error) {
+	var withdrawalLimit, depositLimit float64
+
+	row := db.QueryRow(`SELECT withdrawal_limit, deposit_limit FROM atm WHERE id = 1;`)
+	err := row.Scan(&withdrawalLimit, &depositLimit)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return 0, 0, fmt.Errorf("ATM record not found")
+		}
+		return 0, 0, err
+	}
+
+	return withdrawalLimit, depositLimit, nil
+}

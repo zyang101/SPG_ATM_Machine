@@ -5,6 +5,8 @@ import (
 	"SPG_ATM_Machine/internal/db"
 	"SPG_ATM_Machine/utils"
 	"fmt"
+	"strings"
+	"strconv"
 )
 
 func viewChoices() {
@@ -99,14 +101,48 @@ func Menu(username string) {
 		case "1":
 			createNewUser()
 		case "2":
-			fmt.Println("View Deposit/Withdrawl feature coming soon!")
-
 			err = api.ShowTransactions(database)
 			if err != nil {
 				fmt.Println("Error:", err)
 			}
 		case "3":
-			fmt.Println("Set Deposit/Withdrawal feature coming soon!")
+			withdrawalLimit, depositLimit, err := api.GetATMLimits(database)
+			if err != nil {
+				fmt.Println("Error fetching limits:", err)
+			} else {
+				fmt.Printf("\nCurrent Withdrawal Limit: $%.2f\n", withdrawalLimit)
+				fmt.Printf("Current Deposit Limit: $%.2f\n\n", depositLimit)
+			}			
+			limitChoice := strings.ToUpper(utils.TypeInput("Enter W to change withdrawal limit, D to change deposit limit, or S to skip: "))
+			switch limitChoice {
+			case "W":
+				limitStr := utils.TypeInput("Enter new withdrawal limit: ")
+				newLimit, err := strconv.ParseFloat(limitStr, 64)
+				if err != nil {
+					fmt.Println("Invalid number. Please try again.")
+					break
+				}
+				err = api.UpdateWithdrawalLimit(database, newLimit)
+				if err != nil {
+					fmt.Println("Error updating withdrawal limit:", err)
+				}
+			case "D":
+				limitStr := utils.TypeInput("Enter new deposit limit: ")
+				newLimit, err := strconv.ParseFloat(limitStr, 64)
+				if err != nil {
+					fmt.Println("Invalid number. Please try again.")
+					break
+				}
+				err = api.UpdateDepositLimit(database, newLimit)
+				if err != nil {
+					fmt.Println("Error updating deposit limit:", err)
+				}
+			case "S":
+				// skip
+			default:
+				fmt.Println("Invalid choice. Please enter W, D, or S.")
+			}
+
 		case "4":
 			fmt.Println("Thank you for banking with JP Goldman Stanley!")
 			return

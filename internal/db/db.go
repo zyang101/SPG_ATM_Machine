@@ -30,7 +30,9 @@ func Connect() (*sql.DB, error) {
 	atmTable := `
     CREATE TABLE IF NOT EXISTS atm (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        balance REAL
+        balance REAL,
+		withdrawal_limit REAL DEFAULT 0,
+    	deposit_limit REAL DEFAULT 0
     );`
 	_, err = db.Exec(atmTable)
 	if err != nil {
