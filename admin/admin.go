@@ -65,8 +65,7 @@ func createNewUser() {
 	}
 	defer database.Close()
 
-	// Call API CreateUser (from internal/api/handlers.go)
-	err = api.CreateUser(database, newName, newDateOfBirth, newPin, floatStartingAmount, newUsername, "customer")
+	err = api.CreateUser(database, newName, newDateOfBirth, newPin, floatStartingAmount, newUsername, "admin")
 	if err != nil {
 		fmt.Println("Error creating user:", err)
 		return

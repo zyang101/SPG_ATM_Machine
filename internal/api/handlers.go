@@ -10,6 +10,16 @@ import (
 
 // Create a new user
 func CreateUser(db *sql.DB, fullName, dob, pin string, startingBal float64, username, role string) error {
+	var exists bool
+    err := db.QueryRow("SELECT EXISTS(SELECT 1 FROM users WHERE username = ?)", username).Scan(&exists)
+    if err != nil {
+        return fmt.Errorf("failed to check username: %v", err)
+    }
+    if exists {
+        return fmt.Errorf("username '%s' already exists", username)
+    }
+
+	
 	hashedPin, err := bcrypt.GenerateFromPassword([]byte(pin), bcrypt.DefaultCost)
 	if err != nil {
 		return fmt.Errorf("failed to hash PIN: %v", err)
