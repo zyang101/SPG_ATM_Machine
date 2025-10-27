@@ -65,7 +65,7 @@ func createNewUser() {
 	}
 	defer database.Close()
 
-	err = api.CreateUser(database, newName, newDateOfBirth, newPin, floatStartingAmount, newUsername, "admin")
+	err = api.CreateUser(database, newName, newDateOfBirth, newPin, floatStartingAmount, newUsername, "customer")
 	if err != nil {
 		fmt.Println("Error creating user:", err)
 		return
