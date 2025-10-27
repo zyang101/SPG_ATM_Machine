@@ -5,13 +5,15 @@ import (
 	"strings"
 	"strconv"
 	"regexp"
+	"bufio"
+	"os"
 
 )
 
 func TypeInput(prompt string) string {
-	var input string
-	fmt.Println(prompt)
-	fmt.Scanln(&input)
+	fmt.Print(prompt + " ")
+	reader := bufio.NewReader(os.Stdin)
+	input, _ := reader.ReadString('\n')
 	return strings.TrimSpace(input)
 }
 
