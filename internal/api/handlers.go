@@ -4,10 +4,17 @@ import (
 	"SPG_ATM_Machine/internal/models"
 	"database/sql"
 	"fmt"
+	"golang.org/x/crypto/bcrypt"
+
 )
 
 // Create a new user
 func CreateUser(db *sql.DB, fullName, dob, pin string, startingBal float64, username, role string) error {
+	hashedPin, err := bcrypt.GenerateFromPassword([]byte(pin), bcrypt.DefaultCost)
+	if err != nil {
+		return fmt.Errorf("failed to hash PIN: %v", err)
+	}
+
 	nextID, err := GetNextUserID(db)
 	if err != nil {
 		return err
@@ -16,7 +23,7 @@ func CreateUser(db *sql.DB, fullName, dob, pin string, startingBal float64, user
 	_, err = db.Exec(`
         INSERT INTO users (id, full_name, dob, pin, starting_bal, username, role)
         VALUES (?, ?, ?, ?, ?, ?, ?)`,
-		nextID, fullName, dob, pin, startingBal, username, role)
+		nextID, fullName, dob, string(hashedPin), startingBal, username, role)
 	return err
 }
 

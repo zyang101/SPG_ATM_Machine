@@ -60,7 +60,7 @@ func createNewUser() {
 	// Call CreateUser from db package
 	database, err := db.Connect()
 	if err != nil {
-		fmt.Println("❌ Error connecting to database:", err)
+		fmt.Println("Error connecting to database:", err)
 		return
 	}
 	defer database.Close()
@@ -68,12 +68,12 @@ func createNewUser() {
 	// Call API CreateUser (from internal/api/handlers.go)
 	err = api.CreateUser(database, newName, newDateOfBirth, newPin, floatStartingAmount, newUsername, "customer")
 	if err != nil {
-		fmt.Println("❌ Error creating user:", err)
+		fmt.Println("Error creating user:", err)
 		return
 	}
 
 	// Summary
-	fmt.Println("\n✅ Account created successfully!")
+	fmt.Println("\nAccount created successfully!")
 	fmt.Println("Username:", newUsername)
 	fmt.Println("PIN:", newPin)
 	fmt.Println("Name:", newName)

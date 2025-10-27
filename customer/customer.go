@@ -20,7 +20,7 @@ func Menu(username string) {
 	fmt.Printf("\nWelcome %s! What would you like do to today?\n", username)
 	database, err := db.Connect()
 	if err != nil {
-		fmt.Println("❌ Error connecting to database:", err)
+		fmt.Println("Error connecting to database:", err)
 		return
 	}
 	viewChoices()
@@ -32,7 +32,7 @@ func Menu(username string) {
 		case "1":
 			balance, err := api.GetUserBalance(database, username)
 			if err != nil {
-				fmt.Println("⚠️ Could not get balance:", err)
+				fmt.Println("Could not get balance:", err)
 				return
 			}
 			fmt.Printf("Your balance is $%.2f \n", balance)
@@ -40,12 +40,12 @@ func Menu(username string) {
 			moneyDeposit := utils.TypeInput("Enter how much money to deposit: ")
 			val, err := strconv.ParseFloat(moneyDeposit, 64)
 			if err != nil {
-				fmt.Println("⚠️ Invalid Input:", err)
+				fmt.Println("Invalid Input:", err)
 				return
 			}
 			newBalance, err := api.DepositBalance(database, username, float64(val))
 			if err != nil {
-				fmt.Println("⚠️ Could not update balance:", err)
+				fmt.Println("Could not update balance:", err)
 				return
 			}
 			fmt.Printf("Your new blanace is $%.2f \n", newBalance)
@@ -53,12 +53,12 @@ func Menu(username string) {
 			moneyWithdraw := utils.TypeInput("Enter how much money to withdraw: ")
 			val, err := strconv.ParseFloat(moneyWithdraw, 64)
 			if err != nil {
-				fmt.Println("⚠️ Invalid Input:", err)
+				fmt.Println("Invalid Input:", err)
 				return
 			}
 			newBalance, err := api.WithdrawBalance(database, username, float64(val))
 			if err != nil {
-				fmt.Println("⚠️ Could not update balance:", err)
+				fmt.Println("Could not update balance:", err)
 				return
 			}
 			fmt.Printf("Your new blanace is $%.2f \n", newBalance)
