@@ -386,21 +386,65 @@ func DepositATM(db *sql.DB, inc_amount float64) error {
 }
 
 // Withdraw money from the atm from the Cash Handler
-func WithdrawATM(db *sql.DB, dec_amount float64) error {
+func WithdrawATM(db *sql.DB, dec_amount float64, nHundreds, nFifties, nTwenties, nTens, nFives, nOnes int) error {
 	bal, err := GetATMBalance(db)
 	if err != nil {
 		return fmt.Errorf("could not get ATM balance: %v", err)
 	}
+
 	if dec_amount > bal {
 		return fmt.Errorf("ATM does not have enough cash. Current ATM balance: $%.2f", bal)
 	}
 
-	stmt, err := db.Prepare("UPDATE atm SET balance = balance - ? WHERE id = 1")
+	// Get current bill counts
+	row := db.QueryRow(`
+		SELECT ones, fives, tens, twenties, fifties, hundreds
+		FROM atm WHERE id = 1;
+	`)
+
+	var ones, fives, tens, twenties, fifties, hundreds int
+	err = row.Scan(&ones, &fives, &tens, &twenties, &fifties, &hundreds)
+	if err != nil {
+		return fmt.Errorf("failed fetching ATM denominations: %v", err)
+	}
+
+	// Total from input
+	withdrawTotal := (nHundreds * 100) + (nFifties * 50) + (nTwenties * 20) +
+		(nTens * 10) + (nFives * 5) + (nOnes * 1)
+
+	if withdrawTotal != int(dec_amount) {
+		return fmt.Errorf("bills selected ($%d) do not match withdrawal amount $%.2f", withdrawTotal, dec_amount)
+	}
+
+	// Check availability
+	if nHundreds > hundreds || nFifties > fifties || nTwenties > twenties ||
+		nTens > tens || nFives > fives || nOnes > ones {
+		return fmt.Errorf("ATM does not have enough of one or more bill denominations")
+	}
+
+	// Deduct bills
+	hundreds -= nHundreds
+	fifties -= nFifties
+	twenties -= nTwenties
+	tens -= nTens
+	fives -= nFives
+	ones -= nOnes
+
+	// Update DB
+	stmt, err := db.Prepare(`
+		UPDATE atm
+		SET balance = balance - ?,
+		    ones = ?, fives = ?, tens = ?, twenties = ?, fifties = ?, hundreds = ?
+		WHERE id = 1`)
 	if err != nil {
 		return err
 	}
 	defer stmt.Close()
 
-	_, err = stmt.Exec(dec_amount)
-	return err
+	_, err = stmt.Exec(dec_amount, ones, fives, tens, twenties, fifties, hundreds)
+	if err != nil {
+		return fmt.Errorf("failed to withdraw bills: %v", err)
+	}
+
+	return nil
 }

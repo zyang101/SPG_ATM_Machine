@@ -16,6 +16,18 @@ func TypeInput(prompt string) string {
 	return strings.TrimSpace(input)
 }
 
+func TypeInt(prompt string) int {
+	for {
+		input := TypeInput(prompt) // reuse your existing function
+		val, err := strconv.Atoi(input)
+		if err != nil {
+			fmt.Println("Invalid number, please try again.")
+			continue
+		}
+		return val
+	}
+}
+
 func ParseAmount(amountStr string) (float64, bool) {
 	amountStr = strings.TrimSpace(amountStr)
 

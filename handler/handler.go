@@ -8,8 +8,8 @@ import (
 )
 
 func viewChoices()  {
-  fmt.Println("Enter 0 to View Options Again")
-  fmt.Println("Enter 1 to View Total ATM Cash")
+	fmt.Println("Enter 0 to View Options Again")
+	fmt.Println("Enter 1 to View Total ATM Cash")
 	fmt.Println("Enter 2 to Deposit Cash to ATM")
 	fmt.Println("Enter 3 to Withdraw Cash from ATM")
 	fmt.Println("Enter 4 to Exit")
@@ -64,19 +64,22 @@ func Menu(username string) {
 
 		case "3"://withdaw from atm
 
-			amount_with := utils.TypeInput("Enter amount to Withdraw from the ATM: ")
-			amount,_ := utils.ParseAmount(amount_with)
+			amountStr := utils.TypeInput("Enter amount to Withdraw from the ATM: ")
+			amount, _ := utils.ParseAmount(amountStr)
 
-			err := api.WithdrawATM(database, amount)
+			fmt.Println("Enter bill breakdown for withdrawal:")
+			nHundreds := utils.TypeInt("Hundreds: ")
+			nFifties  := utils.TypeInt("Fifties: ")
+			nTwenties := utils.TypeInt("Twenties: ")
+			nTens     := utils.TypeInt("Tens: ")
+			nFives    := utils.TypeInt("Fives: ")
+			nOnes     := utils.TypeInt("Ones: ")
 
-			//checks if withdraw passed
+			err := api.WithdrawATM(database, amount, nHundreds, nFifties, nTwenties, nTens, nFives, nOnes)
 			if err != nil {
-				fmt.Println("ERROR: ", err)
-				return
+				fmt.Println("ERROR:", err)
+				continue
 			}
-
-			//makes a new balance check
-			api.PrintNewATMBalance(database)
 
 		case "4":
 			fmt.Println("Thank you for banking with JP Goldman Stanley!")
