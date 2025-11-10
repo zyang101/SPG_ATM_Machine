@@ -33,7 +33,7 @@ func Menu(username string) {
 			balance, err := api.GetUserBalance(database, username)
 			if err != nil {
 				fmt.Println("Could not get balance:", err)
-				return
+				continue
 			}
 			fmt.Printf("Your balance is $%.2f \n", balance)
 		case "2":
@@ -41,12 +41,12 @@ func Menu(username string) {
 			val, err := strconv.ParseFloat(moneyDeposit, 64)
 			if err != nil {
 				fmt.Println("Invalid Input:", err)
-				return
+				continue
 			}
 			newBalance, err := api.DepositBalance(database, username, float64(val))
 			if err != nil {
 				fmt.Println("Could not update balance:", err)
-				return
+				continue
 			}
 			fmt.Printf("Your new blanace is $%.2f \n", newBalance)
 		case "3":
@@ -54,12 +54,12 @@ func Menu(username string) {
 			val, err := strconv.ParseFloat(moneyWithdraw, 64)
 			if err != nil {
 				fmt.Println("Invalid Input:", err)
-				return
+				continue
 			}
 			newBalance, err := api.WithdrawBalance(database, username, float64(val))
 			if err != nil {
 				fmt.Println("Could not update balance:", err)
-				return
+				continue
 			}
 			fmt.Printf("Your new blanace is $%.2f \n", newBalance)
 		case "4":
