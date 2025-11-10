@@ -58,7 +58,7 @@ func createNewUser() {
 			break
 		}
 	}
-
+	
 	database, err := db.Connect()
 	if err != nil {
 		fmt.Println("Error connecting to database:", err)
