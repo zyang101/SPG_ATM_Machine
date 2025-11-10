@@ -58,10 +58,15 @@ func Login() (bool, string) {
 	}
 	defer conn.Close()
 
-	// Look up stored hash for username
+	stmt, err := conn.Prepare("SELECT pin FROM users WHERE username = ?")
+	if err != nil {
+		fmt.Println("Database prepare error:", err)
+		return false, ""
+	}
+	defer stmt.Close()
+
 	var storedHash string
-	query := `SELECT pin FROM users WHERE username = ?`
-	err = conn.QueryRow(query, username).Scan(&storedHash)
+	err = stmt.QueryRow(username).Scan(&storedHash)
 
 	if err == sql.ErrNoRows {
 		fmt.Println("Invalid login")
@@ -89,8 +94,15 @@ func RouteUser(username string) {
 	}
 	defer conn.Close()
 
+	stmt, err := conn.Prepare("SELECT role FROM users WHERE username = ?")
+	if err != nil {
+		fmt.Println("Error preparing statement:", err)
+		return
+	}
+	defer stmt.Close()
+
 	var role string
-	err = conn.QueryRow(`SELECT role FROM users WHERE username = ?`, username).Scan(&role)
+	err = stmt.QueryRow(username).Scan(&role)
 	if err != nil {
 		fmt.Println("Error fetching user role:", err)
 		return

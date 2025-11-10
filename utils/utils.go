@@ -1,13 +1,12 @@
 package utils
 
 import (
-	"fmt"
-	"strings"
-	"strconv"
-	"regexp"
 	"bufio"
+	"fmt"
 	"os"
-
+	"regexp"
+	"strconv"
+	"strings"
 )
 
 func TypeInput(prompt string) string {
@@ -32,27 +31,6 @@ func ParseAmount(amountStr string) (float64, bool) {
 	}
 
 	return amount, true
-}
-
-func Deposit(username string)	{
-	depositAmount := TypeInput("Enter Amount to Deposit: ")
-	floatAmount, ok := ParseAmount(depositAmount)
-	if !ok	{
-		return
-	}
-	// add db change here
-
-	fmt.Printf("Deposited $%.2f into %s's account.\n", floatAmount, username)
-}
-
-func Withdraw(username string)	{
-	withdrawAmount := TypeInput("Enter Amount to Withdraw: ")
-	floatAmount, ok:= ParseAmount(withdrawAmount)
-	if !ok	{
-		return
-	}
-	// add db change here
-	fmt.Printf("Withdrew $%.2f from %s's account\n", floatAmount, username)
 }
 
 func ValidatePIN(pin string) bool {
