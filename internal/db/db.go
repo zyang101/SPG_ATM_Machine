@@ -32,7 +32,13 @@ func Connect() (*sql.DB, error) {
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         balance REAL,
 		withdrawal_limit REAL DEFAULT 0,
-    	deposit_limit REAL DEFAULT 0
+    	deposit_limit REAL DEFAULT 0,
+		ones INTEGER DEFAULT 0,
+		fives INTEGER DEFAULT 0,
+		tens INTEGER DEFAULT 0,
+		twenties INTEGER DEFAULT 0,
+		fifties INTEGER DEFAULT 0,
+		hundreds INTEGER DEFAULT 0
     );`
 	_, err = db.Exec(atmTable)
 	if err != nil {

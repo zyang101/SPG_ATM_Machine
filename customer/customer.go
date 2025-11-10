@@ -13,7 +13,8 @@ func viewChoices() {
 	fmt.Println("Enter 1 to Check Balance")
 	fmt.Println("Enter 2 to Deposit Money")
 	fmt.Println("Enter 3 to Withdrawal Money")
-	fmt.Println("Enter 4 to Exit")
+	fmt.Println("Enter 4 to Transfer Funds")
+	fmt.Println("Enter 5 to Exit")
 }
 
 func Menu(username string) {
@@ -61,8 +62,30 @@ func Menu(username string) {
 				fmt.Println("Could not update balance:", err)
 				continue
 			}
-			fmt.Printf("Your new blanace is $%.2f \n", newBalance)
+			fmt.Printf("Your new balance is $%.2f \n", newBalance)
 		case "4":
+			for {
+				transferTarget := utils.TypeInput("Enter username to transfer funds to: ")
+				if utils.ValidateName(transferTarget) {
+					break
+				}
+			}
+			stmtCheck, err := db.Prepare("SELECT EXISTS(SELECT 1 FROM users WHERE username = ?)")
+			if err != nil {
+				return err
+			}
+			defer stmtCheck.Close()
+
+			//Error handling to check if the username exists or not
+			var exists bool
+			if err := stmtCheck.QueryRow(username).Scan(&exists); err != nil {
+				return fmt.Errorf("failed to check username: %v", err)
+			}
+			if exists {
+				return fmt.Errorf("username '%s' already exists", username)
+			}
+
+		case "5":
 			fmt.Println("Thank you for banking with JP Goldman Stanley!")
 			return
 		default:
