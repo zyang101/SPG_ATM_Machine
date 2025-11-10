@@ -236,3 +236,60 @@ func GetATMLimits(db *sql.DB) (float64, float64, error) {
 
 	return withdrawalLimit, depositLimit, nil
 }
+
+
+//CHECK WITH TEAM TO SEE IF THEY WANT TO PUT THIS IN HANDALER/ IF THE DB QUERY WAS DONE CORRECTLY
+func GetATMBalance(db *sql.DB) (float64, error) {
+
+	var bal float64
+	err := db.QueryRow("SELECT balance FROM atm WHERE id = 1").Scan(&bal)
+
+	if err != nil {
+		return 0, err
+	}
+
+	return bal, nil
+
+}
+
+func PrintNewATMBalance(db *sql.DB) { //prints balance after operation
+
+	new_bal,err := GetATMBalance(db)
+	if err != nil {
+		fmt.Println("Could not get balance:", err)
+		return
+	}
+
+	fmt.Printf("New ATM balance: $%.2f\n", new_bal)
+}
+
+func DepositATM(db *sql.DB, inc_amount float64) error {
+
+	_, err := db.Exec("UPDATE atm SET balance = balance + ? WHERE id = 1", inc_amount)
+
+	if err != nil {
+		return fmt.Errorf("failed to update ATM balance: %v", err)
+	}
+
+	return nil
+}
+
+func WithdrawATM (db *sql.DB, dec_anount float64) error {
+
+	bal, err := GetATMBalance(db)
+
+	if err != nil {
+		return fmt.Errorf("could not get ATM balance: %v", err)
+	}
+
+	if dec_anount > bal {
+		return fmt.Errorf("ATM does not have enough cash. Current ATM balance: $%.2f", bal)
+	}
+
+	_, err = db.Exec("UPDATE atm SET balance = balance - ? WHERE id = 1", dec_anount)
+	if err != nil {
+		return fmt.Errorf("failed to withdraw from ATM balance: %v", err)
+	}
+
+	return nil
+}
