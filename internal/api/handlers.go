@@ -9,14 +9,16 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-// Create a new user
+// Create the user
 func CreateUser(db *sql.DB, fullName, dob, pin string, startingBal float64, username, role string) error {
+	//Check database to see if it exist (use prepare statement to separate code and data)
 	stmtCheck, err := db.Prepare("SELECT EXISTS(SELECT 1 FROM users WHERE username = ?)")
 	if err != nil {
 		return err
 	}
 	defer stmtCheck.Close()
 
+	//Error handling to check if the username exists or not
 	var exists bool
 	if err := stmtCheck.QueryRow(username).Scan(&exists); err != nil {
 		return fmt.Errorf("failed to check username: %v", err)
@@ -25,16 +27,19 @@ func CreateUser(db *sql.DB, fullName, dob, pin string, startingBal float64, user
 		return fmt.Errorf("username '%s' already exists", username)
 	}
 
+	//Hashes pin to store in database
 	hashedPin, err := bcrypt.GenerateFromPassword([]byte(pin), bcrypt.DefaultCost)
 	if err != nil {
 		return fmt.Errorf("failed to hash PIN: %v", err)
 	}
 
+	//Update id number for each user
 	nextID, err := GetNextUserID(db)
 	if err != nil {
 		return err
 	}
 
+	//Upload all USER metadata into database
 	stmtInsert, err := db.Prepare(`
 		INSERT INTO users (id, full_name, dob, pin, starting_bal, username, role)
 		VALUES (?, ?, ?, ?, ?, ?, ?)`)
@@ -47,13 +52,16 @@ func CreateUser(db *sql.DB, fullName, dob, pin string, startingBal float64, user
 	return err
 }
 
+// Increments the userID by one each time a new user is created
 func GetNextUserID(db *sql.DB) (int, error) {
+	//Gets most recent userID number
 	stmt, err := db.Prepare("SELECT COUNT(*) FROM users")
 	if err != nil {
 		return 0, err
 	}
 	defer stmt.Close()
 
+	//Increments the userID by one and returns it
 	var count int
 	err = stmt.QueryRow().Scan(&count)
 	if err != nil {
@@ -62,13 +70,16 @@ func GetNextUserID(db *sql.DB) (int, error) {
 	return count + 1, nil
 }
 
+// Gets the User's current balance
 func GetUserBalance(db *sql.DB, username string) (float64, error) {
+	//Retrieve the current balance of the user
 	stmt, err := db.Prepare("SELECT starting_bal FROM users WHERE username = ?")
 	if err != nil {
 		return 0, err
 	}
 	defer stmt.Close()
 
+	//Error handling then returns the balance
 	var bal float64
 	err = stmt.QueryRow(username).Scan(&bal)
 	if err != nil {
@@ -77,12 +88,15 @@ func GetUserBalance(db *sql.DB, username string) (float64, error) {
 	return bal, nil
 }
 
+// Depost money to the user's account
 func DepositBalance(db *sql.DB, username string, amount float64) (float64, error) {
+	//Retrieve the user's current balance
 	balance, err := GetUserBalance(db, username)
 	if err != nil {
 		return 0, fmt.Errorf("could not get balance: %v", err)
 	}
 
+	//Gets the withdraw and deposit limits and do error handling
 	_, depositLimit, err := GetATMLimits(db)
 	if err != nil {
 		fmt.Println("Error fetching limits:", err)
@@ -92,8 +106,10 @@ func DepositBalance(db *sql.DB, username string, amount float64) (float64, error
 		}
 	}
 
+	//Find new balance
 	newBalance := balance + amount
 
+	//Update the user's balance with the new balance
 	stmtUpdUser, err := db.Prepare("UPDATE users SET starting_bal = ? WHERE username = ?")
 	if err != nil {
 		return 0, err
@@ -104,6 +120,7 @@ func DepositBalance(db *sql.DB, username string, amount float64) (float64, error
 		return 0, fmt.Errorf("failed to update balance: %v", err)
 	}
 
+	//Updates the atm's balance with the newly deposited money
 	stmtUpdATM, err := db.Prepare("UPDATE atm SET balance = balance + ? WHERE id = 1")
 	if err != nil {
 		return 0, err
@@ -119,6 +136,7 @@ func DepositBalance(db *sql.DB, username string, amount float64) (float64, error
 		return newBalance, fmt.Errorf("could not get user id: %v", err)
 	}
 
+	//Update transaction log
 	stmtTrans, err := db.Prepare(`
 		INSERT INTO transactions (user_id, date, balance)
 		VALUES (?, datetime('now', 'localtime'), ?)`)
@@ -135,12 +153,15 @@ func DepositBalance(db *sql.DB, username string, amount float64) (float64, error
 	return newBalance, err
 }
 
+// Withdraw money from the user's account
 func WithdrawBalance(db *sql.DB, username string, amount float64) (float64, error) {
+	//Get the user's current balance
 	balance, err := GetUserBalance(db, username)
 	if err != nil {
 		return 0, fmt.Errorf("could not get balance: %v", err)
 	}
 
+	//Check if the user has enough money to withdraw the amount
 	withdrawLimit, _, err := GetATMLimits(db)
 	if err != nil {
 		fmt.Println("Error fetching limits:", err)
@@ -150,11 +171,13 @@ func WithdrawBalance(db *sql.DB, username string, amount float64) (float64, erro
 		}
 	}
 
+	//Find the new balance after withdraw amount
 	newBalance := balance - amount
 	if newBalance < 0 {
 		return 0, fmt.Errorf("not enough in balance to withdraw. Current balance: $%.2f", balance)
 	}
 
+	//Update the user's balance
 	stmtUpdUser, err := db.Prepare("UPDATE users SET starting_bal = ? WHERE username = ?")
 	if err != nil {
 		return 0, err
@@ -165,6 +188,7 @@ func WithdrawBalance(db *sql.DB, username string, amount float64) (float64, erro
 		return 0, fmt.Errorf("failed to update balance: %v", err)
 	}
 
+	//Update the atm's balance
 	stmtUpdATM, err := db.Prepare("UPDATE atm SET balance = balance - ? WHERE id = 1")
 	if err != nil {
 		return 0, err
@@ -180,6 +204,7 @@ func WithdrawBalance(db *sql.DB, username string, amount float64) (float64, erro
 		return newBalance, fmt.Errorf("could not get user id: %v", err)
 	}
 
+	//Update transaction log
 	stmtTrans, err := db.Prepare(`
 		INSERT INTO transactions (user_id, date, balance)
 		VALUES (?, datetime('now', 'localtime'), ?)`)
@@ -196,7 +221,9 @@ func WithdrawBalance(db *sql.DB, username string, amount float64) (float64, erro
 	return newBalance, err
 }
 
+// Get the user's ID based on username
 func GetUserID(db *sql.DB, username string) (int, error) {
+	//Pull ID from database with username as input
 	stmt, err := db.Prepare("SELECT id FROM users WHERE username = ?")
 	if err != nil {
 		return 0, err
@@ -208,7 +235,9 @@ func GetUserID(db *sql.DB, username string) (int, error) {
 	return id, err
 }
 
+// List all the current users inside the databases
 func ListUsers(db *sql.DB) ([]models.User, error) {
+	//Pull entire list of users in Database
 	stmt, err := db.Prepare(`SELECT id, full_name, dob, pin, starting_bal, username, role FROM users`)
 	if err != nil {
 		return nil, err
@@ -221,6 +250,7 @@ func ListUsers(db *sql.DB) ([]models.User, error) {
 	}
 	defer rows.Close()
 
+	//Add each user to a list and returns it
 	var users []models.User
 	for rows.Next() {
 		var u models.User
@@ -232,7 +262,9 @@ func ListUsers(db *sql.DB) ([]models.User, error) {
 	return users, nil
 }
 
+// Show the list of transactions
 func ShowTransactions(db *sql.DB) error {
+	//Retrieves all transcations
 	stmt, err := db.Prepare(`
 		SELECT t.id, u.username, t.date, t.balance
 		FROM transactions t
@@ -249,6 +281,7 @@ func ShowTransactions(db *sql.DB) error {
 	}
 	defer rows.Close()
 
+	//Print out each of the transactions
 	fmt.Println("\n===== TRANSACTION HISTORY =====")
 	fmt.Printf("%-5s | %-15s | %-20s | %-10s\n", "ID", "Username", "Date", "Amount ($)")
 	fmt.Println(strings.Repeat("-", 60))
@@ -266,6 +299,7 @@ func ShowTransactions(db *sql.DB) error {
 	return rows.Err()
 }
 
+// Update the withdrawal limit
 func UpdateWithdrawalLimit(db *sql.DB, newLimit float64) error {
 	if newLimit < 0 {
 		return fmt.Errorf("withdrawal limit cannot be negative")
@@ -279,6 +313,7 @@ func UpdateWithdrawalLimit(db *sql.DB, newLimit float64) error {
 	return err
 }
 
+// Update the deposit limit
 func UpdateDepositLimit(db *sql.DB, newLimit float64) error {
 	if newLimit < 0 {
 		return fmt.Errorf("deposit limit cannot be negative")
@@ -292,6 +327,7 @@ func UpdateDepositLimit(db *sql.DB, newLimit float64) error {
 	return err
 }
 
+// Retrieve the ATM deposit and withdrawal limits
 func GetATMLimits(db *sql.DB) (float64, float64, error) {
 	stmt, err := db.Prepare(`SELECT withdrawal_limit, deposit_limit FROM atm WHERE id = 1`)
 	if err != nil {
@@ -306,6 +342,7 @@ func GetATMLimits(db *sql.DB) (float64, float64, error) {
 	return withdrawalLimit, depositLimit, nil
 }
 
+// Get the ATM's current balance
 func GetATMBalance(db *sql.DB) (float64, error) {
 	stmt, err := db.Prepare("SELECT balance FROM atm WHERE id = 1")
 	if err != nil {
@@ -318,6 +355,7 @@ func GetATMBalance(db *sql.DB) (float64, error) {
 	return bal, err
 }
 
+// Print the ATM's new balance after updating it
 func PrintNewATMBalance(db *sql.DB) {
 	newBal, err := GetATMBalance(db)
 	if err != nil {
@@ -327,6 +365,7 @@ func PrintNewATMBalance(db *sql.DB) {
 	fmt.Printf("New ATM balance: $%.2f\n", newBal)
 }
 
+// Deposit money to the ATM from the Cash Handler
 func DepositATM(db *sql.DB, inc_amount float64) error {
 	stmt, err := db.Prepare("UPDATE atm SET balance = balance + ? WHERE id = 1")
 	if err != nil {
@@ -337,6 +376,7 @@ func DepositATM(db *sql.DB, inc_amount float64) error {
 	return err
 }
 
+// Withdraw money from the atm from the Cash Handler
 func WithdrawATM(db *sql.DB, dec_amount float64) error {
 	bal, err := GetATMBalance(db)
 	if err != nil {
