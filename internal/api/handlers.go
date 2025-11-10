@@ -83,6 +83,15 @@ func DepositBalance(db *sql.DB, username string, amount float64) (float64, error
 		return 0, fmt.Errorf("could not get balance: %v", err)
 	}
 
+	_, depositLimit, err := GetATMLimits(db)
+	if err != nil {
+		fmt.Println("Error fetching limits:", err)
+	} else {
+		if amount > depositLimit {
+			return 0, fmt.Errorf("your deposit amount %f is over the limit: %f", amount, depositLimit)
+		}
+	}
+
 	newBalance := balance + amount
 
 	stmtUpdUser, err := db.Prepare("UPDATE users SET starting_bal = ? WHERE username = ?")
@@ -130,6 +139,15 @@ func WithdrawBalance(db *sql.DB, username string, amount float64) (float64, erro
 	balance, err := GetUserBalance(db, username)
 	if err != nil {
 		return 0, fmt.Errorf("could not get balance: %v", err)
+	}
+
+	withdrawLimit, _, err := GetATMLimits(db)
+	if err != nil {
+		fmt.Println("Error fetching limits:", err)
+	} else {
+		if amount > withdrawLimit {
+			return 0, fmt.Errorf("your deposit amount %f is over the limit: %f", amount, withdrawLimit)
+		}
 	}
 
 	newBalance := balance - amount
