@@ -69,7 +69,7 @@ func Login() (bool, string) {
 	err = stmt.QueryRow(username).Scan(&storedHash)
 
 	if err == sql.ErrNoRows {
-		fmt.Println("Invalid username or PIN.")
+		fmt.Println("Invalid login")
 		return false, ""
 	} else if err != nil {
 		fmt.Println("Database error:", err)
@@ -78,7 +78,7 @@ func Login() (bool, string) {
 
 	err = bcrypt.CompareHashAndPassword([]byte(storedHash), []byte(pin))
 	if err != nil {
-		fmt.Println("Invalid username or PIN.")
+		fmt.Println("Invalid login.")
 		return false, ""
 	}
 
@@ -113,11 +113,10 @@ func RouteUser(username string) {
 		fmt.Println("Error reading ID card.")
 		return
 	}
-	fmt.Println("Card role:", cardRole)
 
 	dbRole := strings.ToLower(role)
 	if cardRole != dbRole {
-		fmt.Println("Invalid ID card.")
+		fmt.Println("Invalid login.")
 		return
 	}
 

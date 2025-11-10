@@ -102,7 +102,7 @@ func DepositBalance(db *sql.DB, username string, amount float64) (float64, error
 		fmt.Println("Error fetching limits:", err)
 	} else {
 		if amount > depositLimit {
-			return 0, fmt.Errorf("your deposit amount %f is over the limit: %f", amount, depositLimit)
+			return 0, fmt.Errorf("your deposit amount %f is over the deposit limit: %f", amount, depositLimit)
 		}
 	}
 
@@ -167,7 +167,16 @@ func WithdrawBalance(db *sql.DB, username string, amount float64) (float64, erro
 		fmt.Println("Error fetching limits:", err)
 	} else {
 		if amount > withdrawLimit {
-			return 0, fmt.Errorf("your deposit amount %f is over the limit: %f", amount, withdrawLimit)
+			return 0, fmt.Errorf("your withdrawl amount %f is over the withdrawl limit: %f", amount, withdrawLimit)
+		}
+	}
+
+	bal, err := GetATMBalance(db)
+	if err != nil {
+		fmt.Println("Error checking total cash in ATM:", err)
+	} else {
+		if amount > bal {
+			return 0, fmt.Errorf("your withdrawl amount %f is over the ATM balance: %f", amount, bal)
 		}
 	}
 
