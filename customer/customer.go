@@ -6,6 +6,7 @@ import (
 	"SPG_ATM_Machine/utils"
 	"fmt"
 	"strconv"
+	"strings"
 )
 
 func viewChoices() {
@@ -26,7 +27,7 @@ func Menu(username string) {
 	}
 	viewChoices()
 	for {
-		choice := utils.TypeInput("Enter your choice (0-4): ")
+		choice := utils.TypeInput("Enter your choice (0-5): ")
 		switch choice {
 		case "0":
 			viewChoices()
@@ -64,25 +65,66 @@ func Menu(username string) {
 			}
 			fmt.Printf("Your new balance is $%.2f \n", newBalance)
 		case "4":
+			var transferTarget string
+			var transferAmt float64
 			for {
-				transferTarget := utils.TypeInput("Enter username to transfer funds to: ")
-				if utils.ValidateName(transferTarget) {
-					break
-				}
+				transferTarget = utils.TypeInput("Enter username to transfer funds to: ")
+				break
 			}
-			stmtCheck, err := db.Prepare("SELECT EXISTS(SELECT 1 FROM users WHERE username = ?)")
+			stmtCheck, err := database.Prepare("SELECT EXISTS(SELECT 1 FROM users WHERE username = ?)")
 			if err != nil {
-				return err
+				fmt.Println("Specified username does not exist")
+				continue
 			}
 			defer stmtCheck.Close()
 
 			//Error handling to check if the username exists or not
 			var exists bool
-			if err := stmtCheck.QueryRow(username).Scan(&exists); err != nil {
-				return fmt.Errorf("failed to check username: %v", err)
+			if err := stmtCheck.QueryRow(transferTarget).Scan(&exists); err != nil {
+				fmt.Printf("failed to check username: %v\n", err)
+				continue
 			}
-			if exists {
-				return fmt.Errorf("username '%s' already exists", username)
+			if !exists {
+				fmt.Printf("user '%s' does not exist\n", transferTarget)
+				continue
+			}
+
+			// TODO: check if username is a customer
+
+			for {
+				transferAmtStr := utils.TypeInput("Enter amount to transfer: ")
+				amount, ok := utils.ParseAmount(transferAmtStr)
+				if ok {
+					transferAmt = amount
+					break
+				}
+			}
+			balance, err := api.GetUserBalance(database, username)
+			if err != nil {
+				fmt.Println("Could not get balance:", err)
+				continue
+			}
+
+			if transferAmt > balance {
+				fmt.Printf("Invalid transfer amount. Your current balance is: '%.2f'\n", balance)
+				continue
+			}
+
+			for {
+				answer := strings.ToUpper(utils.TypeInput(fmt.Sprintf("Confirm transfer of '%.2f' from '%s' to '%s'? (Y/N)", transferAmt, username, transferTarget)))
+				if answer == "Y" {
+					if err := api.TransferFunds(database, username, transferTarget, transferAmt); err != nil {
+						fmt.Printf("Transfer failed: %v\n", err)
+						continue
+					}
+					fmt.Println("Transfer success")
+					break
+				} else if answer == "N" {
+					fmt.Println("Transfer cancelled.")
+					break
+				} else {
+					fmt.Println("Please answer Y or N.")
+				}
 			}
 
 		case "5":

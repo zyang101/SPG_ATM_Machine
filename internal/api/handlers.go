@@ -244,6 +244,57 @@ func GetUserID(db *sql.DB, username string) (int, error) {
 	return id, err
 }
 
+// Transfer funds from source user to target user
+func TransferFunds(db *sql.DB, sourceUser string, targetUser string, amount float64) error {
+	//Get the source user's current balance
+	sourceBalance, err := GetUserBalance(db, sourceUser)
+	if err != nil {
+		return fmt.Errorf("could not get source balance: %v", err)
+	}
+
+	//Get the target user's current balance
+	targetBalance, err := GetUserBalance(db, targetUser)
+	if err != nil {
+		return fmt.Errorf("could not get target balance: %v", err)
+	}
+
+	//Find the new source balance after withdraw amount
+	newSourceBalance := sourceBalance - amount
+	if newSourceBalance < 0 {
+		return fmt.Errorf("not enough in balance to withdraw. Current balance: $%.2f", sourceBalance)
+	}
+
+	//Find the new target balance after withdraw amount
+	newTargetBalance := targetBalance + amount
+
+	// Start a transaction to update both balances or none
+	tx, err := db.Begin()
+	if err != nil {
+		return fmt.Errorf("failed to start transaction: %v", err)
+	}
+	defer tx.Rollback() // Will rollback if we exit the function early
+
+	stmtUpdUser, err := tx.Prepare("UPDATE users SET starting_bal = ? WHERE username = ?")
+	if err != nil {
+		return fmt.Errorf("failed to prepare transfer transaction: %v", err)
+	}
+	defer stmtUpdUser.Close()
+
+	if _, err = stmtUpdUser.Exec(newSourceBalance, sourceUser); err != nil {
+		return fmt.Errorf("failed to update source user balance: %v", err)
+	}
+
+	if _, err = stmtUpdUser.Exec(newTargetBalance, targetUser); err != nil {
+		return fmt.Errorf("failed to update target user balance: %v", err)
+	}
+
+	if err = tx.Commit(); err != nil {
+		return fmt.Errorf("failed to commit transaction: %v", err)
+	}
+
+	return nil
+}
+
 // List all the current users inside the databases
 func ListUsers(db *sql.DB) ([]models.User, error) {
 	//Pull entire list of users in Database
