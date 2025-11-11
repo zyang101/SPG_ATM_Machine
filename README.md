@@ -4,6 +4,16 @@ ATM Machine for Security & Privacy Project
 
 Team Members: Johnson, Justin, Johnny, Reid, and Joshua
 
+
+**Login Credentials:**
+
+* Admin Username: AdminBob
+* Admin PIN: 482915
+* Cash Handler Username: CashMoneyAlice
+* Cash Handler PIN: 739204
+* Customer Username: CustomerChris
+* Customer PIN: 156837
+
 **Installing and Setup:**
 
 1. cd into the base directory ~/SPG_ATM_Machine/
@@ -16,6 +26,7 @@ Team Members: Johnson, Justin, Johnny, Reid, and Joshua
 1. Enter "go run main" to start program
 2. Enter "Y" when prompted to continue
 3. Insert "ATM Card" by changing the value in ~/auth/idcard.txt
+
    * This value can be either admin, customer, or cash handler
    * It is assumed only the respective role will have access to these atm cards.
    * The role value is case sensitive.
@@ -35,7 +46,7 @@ Team Members: Johnson, Justin, Johnny, Reid, and Joshua
 3. Deposits and Withdrawals are must be under the limits set by the admin.
 4. All Cash Amounts need to be a valid float to be parsed, no other characters.
 
-**Cash Handler Directions:** 
+**Cash Handler Directions:**
 
 1. Upon login, the cash handler will have the following options (after Login Directions):
 
