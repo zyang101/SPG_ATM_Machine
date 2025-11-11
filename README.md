@@ -9,10 +9,14 @@ Team Members: Johnson, Justin, Johnny, Reid, and Joshua
 
 * Admin Username: AdminBob
 * Admin PIN: 482915
+* 
 * Cash Handler Username: CashMoneyAlice
 * Cash Handler PIN: 739204
-* Customer Username: CustomerChris
-* Customer PIN: 156837
+* 
+* Customer 1 Username: CustomerChris
+* Customer 1 PIN: 156837
+* Customer 2 Username: RichRichard
+* Customer 2 PIN: 985746
 
 **Installing and Setup:**
 
@@ -27,7 +31,7 @@ Team Members: Johnson, Justin, Johnny, Reid, and Joshua
 2. Enter "Y" when prompted to continue
 3. Insert "ATM Card" by changing the value in ~/auth/idcard.txt
 
-   * This value can be either admin, customer, or cash handler
+   * This value can be one of the following: {admin, customer, cash handler}
    * It is assumed only the respective role will have access to these atm cards.
    * The role value is case sensitive.
 4. Enter a valid username (case sensitive) and PIN (6 digits)

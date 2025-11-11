@@ -13,7 +13,7 @@ func viewChoices() {
 	fmt.Println("Enter 0 to view options again")
 	fmt.Println("Enter 1 to Check Balance")
 	fmt.Println("Enter 2 to Deposit Money")
-	fmt.Println("Enter 3 to Withdrawal Money")
+	fmt.Println("Enter 3 to Withdraw Money")
 	fmt.Println("Enter 4 to Transfer Funds")
 	fmt.Println("Enter 5 to Exit")
 }
