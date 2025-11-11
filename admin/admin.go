@@ -14,7 +14,8 @@ func viewChoices() {
 	fmt.Println("Enter 1 to Create New Customer Account")
 	fmt.Println("Enter 2 to View Deposits/Withdrawals")
 	fmt.Println("Enter 3 to Set Deposit/Withdrawal limits")
-	fmt.Println("Enter 4 to Exit")
+	fmt.Println("Enter 4 to Unlock Account for Customer")
+	fmt.Println("Enter 5 to Exit")
 }
 
 func createNewUser() {
@@ -93,7 +94,7 @@ func Menu(username string) {
 	
 	viewChoices()
 	for {
-		choice := utils.TypeInput("Enter your choice (0-4): ")
+		choice := utils.TypeInput("Enter your choice (0-5): ")
 
 		switch choice {
 		case "0":
@@ -142,8 +143,15 @@ func Menu(username string) {
 			default:
 				fmt.Println("Invalid choice. Please enter W, D, or S.")
 			}
-
 		case "4":
+			username := utils.TypeInput("Enter the username of the account to unlock: ")
+			err := api.UnlockAccount(database, username)
+			if err != nil {
+				fmt.Println("Error unlocking account:", err)
+			} else {
+				fmt.Printf("Account '%s' has been successfully unlocked.\n", username)
+			}
+		case "5":
 			fmt.Println("Thank you for banking with JP Goldman Stanley!")
 			return
 		default:

@@ -8,4 +8,6 @@ type User struct {
 	StartingBal float64
 	Username    string
 	Role        string
+	FailedAttempts int
+	Locked         int
 }

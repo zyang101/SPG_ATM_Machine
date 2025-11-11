@@ -20,7 +20,9 @@ func Connect() (*sql.DB, error) {
         pin TEXT,
         starting_bal REAL,
         username TEXT UNIQUE,
-        role TEXT
+        role TEXT,
+		failed_attempts INTEGER DEFAULT 0,
+    	locked INTEGER DEFAULT 0
     );`
 	_, err = db.Exec(query)
 	if err != nil {

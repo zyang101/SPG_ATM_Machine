@@ -5,16 +5,17 @@ import (
 	"SPG_ATM_Machine/customer"
 	"SPG_ATM_Machine/handler"
 	"SPG_ATM_Machine/internal/db"
+	"SPG_ATM_Machine/internal/api"
 	"bufio"
-	"database/sql"
 	"fmt"
 	"os"
 	"strings"
-
+	"log"
 	"golang.org/x/crypto/bcrypt"
 	"golang.org/x/term"
 )
 
+// Check idcard.txt for the role. Simulates putting in atm card. 
 func ParseIDCard(filePath string) (string, error) {
 	file, err := os.Open(filePath)
 	if err != nil {
@@ -34,22 +35,36 @@ func ParseIDCard(filePath string) (string, error) {
 	return "", fmt.Errorf("file is empty")
 }
 
-func Login() (bool, string) {
+// Prompts the user for their username.
+func PromptUsername() string {
 	reader := bufio.NewReader(os.Stdin)
-
-	fmt.Println("Enter username: ")
+	fmt.Print("Enter username: ")
 	username, _ := reader.ReadString('\n')
-	username = strings.TrimSpace(username)
+	return strings.TrimSpace(username)
+}
 
-	fmt.Println("Enter PIN: ")
+// Prompts the user for their PIN.
+func PromptPIN() string {
+	fmt.Print("Enter PIN: ")
 	bytePin, err := term.ReadPassword(int(os.Stdin.Fd()))
+	fmt.Println()
 	if err != nil {
-		fmt.Println("\nError reading password:", err)
+		log.Println("Error reading PIN:", err)
+		return ""
+	}
+	return strings.TrimSpace(string(bytePin))
+}
+
+func Login() (bool, string) {
+	username := PromptUsername()
+	if username == "" {
 		return false, ""
 	}
-	fmt.Println()
 
-	pin := strings.TrimSpace(string(bytePin))
+	pin := PromptPIN()
+	if pin == "" {
+		return false, ""
+	}
 
 	conn, err := db.Connect()
 	if err != nil {
@@ -58,28 +73,41 @@ func Login() (bool, string) {
 	}
 	defer conn.Close()
 
-	stmt, err := conn.Prepare("SELECT pin FROM users WHERE username = ?")
-	if err != nil {
-		fmt.Println("Database prepare error:", err)
-		return false, ""
-	}
-	defer stmt.Close()
-
-	var storedHash string
-	err = stmt.QueryRow(username).Scan(&storedHash)
-
-	if err == sql.ErrNoRows {
-		fmt.Println("Invalid login")
-		return false, ""
-	} else if err != nil {
-		fmt.Println("Database error:", err)
-		return false, ""
-	}
-
-	err = bcrypt.CompareHashAndPassword([]byte(storedHash), []byte(pin))
+	userInfo, err := api.GetUserAuth(conn, username)
 	if err != nil {
 		fmt.Println("Invalid login.")
 		return false, ""
+	}
+
+	if userInfo.Locked {
+		fmt.Println("Account is locked. Contact admin.")
+		return false, ""
+	}
+
+	// Compare hashed Pin
+	err = bcrypt.CompareHashAndPassword([]byte(userInfo.PINHash), []byte(pin))
+	if err != nil {
+		// Increment failed attempts via API
+		newAttempts, locked, apiErr := api.IncrementFailedAttempts(conn, username)
+		if apiErr != nil {
+			log.Println("DB error:", apiErr)
+			fmt.Println("An error occurred. Contact admin.")
+			return false, ""
+		}
+
+		if locked {
+			fmt.Println("Too many failed attempts. Your account has been locked. Contact an Admin")
+			return false, ""
+		}
+
+		fmt.Printf("Invalid login. (%d/3 attempts)\n", newAttempts)
+		return false, ""
+	}
+
+	// Reset failed attempts on successful login
+	if err := api.ResetFailedAttempts(conn, username); err != nil {
+		log.Println("DB error:", err)
+		fmt.Println("An error occurred. Contact admin.")
 	}
 
 	return true, username
@@ -89,33 +117,22 @@ func RouteUser(username string) {
 
 	conn, err := db.Connect()
 	if err != nil {
-		fmt.Println("Error connecting to database:", err)
+		log.Println("DB error:", err)
+		fmt.Println("An error occurred. Contact admin.", err)
 		return
 	}
 	defer conn.Close()
 
-	stmt, err := conn.Prepare("SELECT role FROM users WHERE username = ?")
-	if err != nil {
-		fmt.Println("Error preparing statement:", err)
-		return
-	}
-	defer stmt.Close()
 
-	var role string
-	err = stmt.QueryRow(username).Scan(&role)
+	dbRole, err := api.FetchUserRole(conn, username)
 	if err != nil {
-		fmt.Println("Error fetching user role:", err)
+		log.Println("Error fetching role:", err)
+		fmt.Println("An error occurred. Contact admin.")
 		return
 	}
 
 	cardRole, err := ParseIDCard("auth/idcard.txt")
-	if err != nil {
-		fmt.Println("Error reading ID card.")
-		return
-	}
-
-	dbRole := strings.ToLower(role)
-	if cardRole != dbRole {
+	if err != nil || cardRole != dbRole {
 		fmt.Println("Invalid login.")
 		return
 	}

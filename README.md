@@ -4,15 +4,12 @@ ATM Machine for Security & Privacy Project
 
 Team Members: Johnson, Justin, Johnny, Reid, and Joshua
 
-
 **Login Credentials:**
 
 * Admin Username: AdminBob
 * Admin PIN: 482915
-* 
 * Cash Handler Username: CashMoneyAlice
 * Cash Handler PIN: 739204
-* 
 * Customer 1 Username: CustomerChris
 * Customer 1 PIN: 156837
 * Customer 2 Username: RichRichard
