@@ -89,7 +89,16 @@ func Menu(username string) {
 				continue
 			}
 
-			// TODO: check if username is a customer
+			var role string
+			err = database.QueryRow("SELECT role FROM users WHERE username = ?", transferTarget).Scan(&role)
+			if err != nil {
+				fmt.Printf("failed to check user role: %v\n", err)
+				continue
+			}
+			if role != "customer" {
+				fmt.Println("Specified username does not exist")
+				continue
+			}
 
 			for {
 				transferAmtStr := utils.TypeInput("Enter amount to transfer: ")
