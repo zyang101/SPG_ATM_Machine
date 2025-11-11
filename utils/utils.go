@@ -68,3 +68,35 @@ func ValidateDate(date string) bool {
 	}
 	return match
 }
+
+func ParseDeposit(filePath string) ([]int, error) {
+	file, err := os.Open(filePath)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	var deposit_denoms []int
+
+	scanner := bufio.NewScanner(file)
+	for i := 0; i < 6; i++ {
+		if !scanner.Scan() {
+			return nil, fmt.Errorf("file has less than 6 lines")
+		}
+		val, err := strconv.Atoi(scanner.Text())
+		if err != nil {
+			return nil, fmt.Errorf("invalid denomination value on line %d", i+1)
+		}
+		deposit_denoms = append(deposit_denoms, val)
+	}
+
+	if scanner.Scan() {
+		return nil, fmt.Errorf("file has more than 6 lines")
+	}
+
+	if err := scanner.Err(); err != nil {
+		fmt.Printf("Error reading file: %v\n", err)
+		return nil, err
+	}
+	return deposit_denoms, nil
+}

@@ -39,19 +39,36 @@ func Menu(username string) {
 			}
 			fmt.Printf("Your balance is $%.2f \n", balance)
 		case "2":
-			moneyDeposit := utils.TypeInput("Enter how much money to deposit: ")
-			val, err := strconv.ParseFloat(moneyDeposit, 64)
+			fmt.Printf("Enter the quantity of each denomination you're depositing in deposit.txt \n")
+			fmt.Printf("Each line is the next higher denomination 1,5,10,20,50,100, e.g. a 3 on line 6 is $300 \n")
+			utils.TypeInput("Press enter here when you are ready to continue:")
+
+			input_denoms, err := utils.ParseDeposit("customer/deposit.txt")
+
 			if err != nil {
 				fmt.Println("Invalid Input:", err)
 				continue
 			}
-			newBalance, err := api.DepositBalance(database, username, float64(val))
+			err = api.DepositATM(database, input_denoms)
+			if err != nil {
+				fmt.Println("Could not update ATM balance:", err)
+				continue
+			}
+
+			denominations_values := []int{1, 5, 10, 20, 50, 100}
+			deposit := 0
+			for denom := range input_denoms {
+				deposit += input_denoms[denom] * denominations_values[denom]
+			}
+
+			newBalance, err := api.DepositBalance(database, username, float64(deposit))
 			if err != nil {
 				fmt.Println("Could not update balance:", err)
 				continue
 			}
-			fmt.Printf("Your new blanace is $%.2f \n", newBalance)
+			fmt.Printf("Your new balance is $%.2f \n", newBalance)
 		case "3":
+			// TODO make like cash handler withdraw by picking a denomination and checking if ATM has enough of that denomination
 			moneyWithdraw := utils.TypeInput("Enter how much money to withdraw: ")
 			val, err := strconv.ParseFloat(moneyWithdraw, 64)
 			if err != nil {

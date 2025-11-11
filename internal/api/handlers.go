@@ -425,17 +425,6 @@ func PrintNewATMBalance(db *sql.DB) {
 	fmt.Printf("New ATM balance: $%.2f\n", newBal)
 }
 
-// Deposit money to the ATM from the Cash Handler
-func DepositATM(db *sql.DB, inc_amount float64) error {
-	stmt, err := db.Prepare("UPDATE atm SET balance = balance + ? WHERE id = 1")
-	if err != nil {
-		return err
-	}
-	defer stmt.Close()
-	_, err = stmt.Exec(inc_amount)
-	return err
-}
-
 // Withdraw money from the atm from the Cash Handler
 func WithdrawATM(db *sql.DB, dec_amount float64, nHundreds, nFifties, nTwenties, nTens, nFives, nOnes int) error {
 	bal, err := GetATMBalance(db)
@@ -495,6 +484,50 @@ func WithdrawATM(db *sql.DB, dec_amount float64, nHundreds, nFifties, nTwenties,
 	_, err = stmt.Exec(dec_amount, ones, fives, tens, twenties, fifties, hundreds)
 	if err != nil {
 		return fmt.Errorf("failed to withdraw bills: %v", err)
+	}
+
+	return nil
+}
+
+// Withdraw money from the atm from the Cash Handler
+func DepositATM(db *sql.DB, denoms []int) error {
+
+	// Get current bill counts
+	row := db.QueryRow(`
+		SELECT ones, fives, tens, twenties, fifties, hundreds
+		FROM atm WHERE id = 1;
+	`)
+
+	var ones, fives, tens, twenties, fifties, hundreds int
+	err := row.Scan(&ones, &fives, &tens, &twenties, &fifties, &hundreds)
+	if err != nil {
+		return fmt.Errorf("failed fetching ATM denominations: %v", err)
+	}
+
+	// Add bills
+	hundreds += denoms[5]
+	fifties += denoms[4]
+	twenties += denoms[3]
+	tens += denoms[2]
+	fives += denoms[1]
+	ones += denoms[0]
+
+	depositTotal := (denoms[5] * 100) + (denoms[4] * 50) + (denoms[3] * 20) + (denoms[2] * 10) + (denoms[1] * 5) + (denoms[0] * 1)
+
+	// Update DB
+	stmt, err := db.Prepare(`
+		UPDATE atm
+		SET balance = balance + ?,
+		    ones = ?, fives = ?, tens = ?, twenties = ?, fifties = ?, hundreds = ?
+		WHERE id = 1`)
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+
+	_, err = stmt.Exec(depositTotal, ones, fives, tens, twenties, fifties, hundreds)
+	if err != nil {
+		return fmt.Errorf("failed to deposit bills: %v", err)
 	}
 
 	return nil

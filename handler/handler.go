@@ -49,15 +49,15 @@ func Menu(username string) {
 		case "2": //deposits balance
 			//utils.Deposit(username) //not sure what username is so I wrote the code to not needed it (can be addjusted later) 
 			
-			amount_dep := utils.TypeInput("Enter amount to Deposit into the ATM: ")
-			amount,_ := utils.ParseAmount(amount_dep)
-			err := api.DepositATM(database, amount)
+			// amount_dep := utils.TypeInput("Enter amount to Deposit into the ATM: ")
+			// amount,_ := utils.ParseAmount(amount_dep) // shouold only need atio now since only ints not floats
+			// err := api.DepositATM(database, amount) TODO update to copy customer deposit function
 			
 			//checks if deposit passed
-			if err != nil {
-				fmt.Println("ERROR: ", err)
-				return
-			}
+			// if err != nil {
+			// 	fmt.Println("ERROR: ", err)
+			// 	return
+			// }
 
 			//makes a new balance check
 			api.PrintNewATMBalance(database)
