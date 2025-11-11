@@ -84,7 +84,7 @@ func ParseDeposit(filePath string) ([]int, error) {
 			return nil, fmt.Errorf("file has less than 6 lines")
 		}
 		val, err := strconv.Atoi(scanner.Text())
-		if err != nil {
+		if err != nil || val < 0 {
 			return nil, fmt.Errorf("invalid denomination value on line %d", i+1)
 		}
 		deposit_denoms = append(deposit_denoms, val)
