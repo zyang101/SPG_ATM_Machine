@@ -473,7 +473,7 @@ func WithdrawATM(db *sql.DB, dec_amount float64, nHundreds, nFifties, nTwenties,
 	// Update DB
 	stmt, err := db.Prepare(`
 		UPDATE atm
-		SET balance = ones = ?, fives = ?, tens = ?, twenties = ?, fifties = ?, hundreds = ?
+		SET ones = ?, fives = ?, tens = ?, twenties = ?, fifties = ?, hundreds = ?
 		WHERE id = 1`)
 	if err != nil {
 		return err
@@ -514,7 +514,7 @@ func DepositATM(db *sql.DB, denoms []int) error {
 	// Update DB
 	stmt, err := db.Prepare(`
 		UPDATE atm
-		SET balance = ones = ?, fives = ?, tens = ?, twenties = ?, fifties = ?, hundreds = ?
+		SET ones = ?, fives = ?, tens = ?, twenties = ?, fifties = ?, hundreds = ?
 		WHERE id = 1`)
 	if err != nil {
 		return err
