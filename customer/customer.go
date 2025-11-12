@@ -5,7 +5,6 @@ import (
 	"SPG_ATM_Machine/internal/db"
 	"SPG_ATM_Machine/utils"
 	"fmt"
-	"strconv"
 	"strings"
 )
 
@@ -15,7 +14,8 @@ func viewChoices() {
 	fmt.Println("Enter 2 to Deposit Money")
 	fmt.Println("Enter 3 to Withdraw Money")
 	fmt.Println("Enter 4 to Transfer Funds")
-	fmt.Println("Enter 5 to Exit")
+	fmt.Println("Enter 5 to View ATM Limits")
+	fmt.Println("Enter 6 to Exit")
 }
 
 func Menu(username string) {
@@ -69,8 +69,13 @@ func Menu(username string) {
 			fmt.Printf("Your new balance is $%.2f \n", newBalance)
 		case "3":
 
-			moneyWithdraw := utils.TypeInput("Enter how much money to withdraw: ")
-			amount, err := strconv.ParseFloat(moneyWithdraw, 64)
+			amountStr := utils.TypeInput("Enter how much money to withdraw: ")
+			amount, _ := utils.ParseAmount(amountStr)
+
+			if amount == 0	{
+				continue
+			}
+
 			if err != nil {
 				fmt.Println("Invalid Input:", err)
 				continue
@@ -172,8 +177,15 @@ func Menu(username string) {
 					fmt.Println("Please answer Y or N.")
 				}
 			}
-
 		case "5":
+			withdrawalLimit, depositLimit, err := api.GetATMLimits(database)
+			if err != nil	{
+				fmt.Println("Failed Withdrawal/Deposit Limit Fetch")
+			}
+			fmt.Printf("Withdraw Limit: $%v\n", withdrawalLimit)
+			fmt.Printf("Deposit Limit: $%v\n", depositLimit)
+
+		case "6":
 			fmt.Println("Thank you for banking with JP Goldman Stanley!")
 			return
 		default:
