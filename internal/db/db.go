@@ -48,12 +48,6 @@ func Connect() (*sql.DB, error) {
 		return nil, err
 	}
 
-	_, err = db.Exec(`INSERT INTO atm (balance)
-                      SELECT 0 WHERE NOT EXISTS (SELECT 1 FROM atm);`)
-	if err != nil {
-		return nil, err
-	}
-
 	transactions := `
 	CREATE TABLE IF NOT EXISTS transactions (
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
