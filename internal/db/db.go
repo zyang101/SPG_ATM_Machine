@@ -30,7 +30,6 @@ func Connect() (*sql.DB, error) {
 	}
 
 	atmTable := `
-	DROP TABLE IF EXISTS atm;
     CREATE TABLE IF NOT EXISTS atm (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         balance REAL GENERATED ALWAYS AS (ones * 1 + fives * 5 + tens * 10 + twenties * 20 + fifties * 50 + hundreds * 100) STORED,
@@ -43,9 +42,26 @@ func Connect() (*sql.DB, error) {
 		fifties INTEGER DEFAULT 0,
 		hundreds INTEGER DEFAULT 0
     );`
+
 	_, err = db.Exec(atmTable)
 	if err != nil {
 		return nil, err
+	}
+
+	var count int
+	err = db.QueryRow("SELECT COUNT(*) FROM atm").Scan(&count)
+	if err != nil {
+		return nil, err
+	}
+
+	if count == 0 {
+		_, err = db.Exec(`
+			INSERT INTO atm (withdrawal_limit, deposit_limit, ones, fives, tens, twenties, fifties, hundreds)
+			VALUES (500, 1000, 0, 0, 0, 0, 0, 0);
+		`)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	transactions := `
