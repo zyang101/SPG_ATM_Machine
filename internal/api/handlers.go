@@ -433,7 +433,7 @@ func WithdrawATM(db *sql.DB, dec_amount float64, nHundreds, nFifties, nTwenties,
 	}
 
 	if dec_amount > bal {
-		return fmt.Errorf("ATM does not have enough cash. Current ATM balance: $%.2f", bal)
+		return fmt.Errorf("ATM does not have enough cash.")
 	}
 
 	// Get current bill counts
