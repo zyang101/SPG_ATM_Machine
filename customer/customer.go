@@ -122,7 +122,7 @@ func Menu(username string) {
 				continue
 			}
 			if !exists {
-				fmt.Printf("user '%s' does not exist\n", transferTarget)
+				fmt.Println("Specified user does not exist")
 				continue
 			}
 
