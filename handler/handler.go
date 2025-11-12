@@ -44,19 +44,6 @@ func Menu(username string) {
 			fmt.Printf("ATM Total balance is $%.2f\n", bal)
 
 		case "2": //deposits balance
-			//utils.Deposit(username) //not sure what username is so I wrote the code to not needed it (can be addjusted later)
-
-			// amount_dep := utils.TypeInput("Enter amount to Deposit into the ATM: ")
-			// amount,_ := utils.ParseAmount(amount_dep) // shouold only need atio now since only ints not floats
-			// err := api.DepositATM(database, amount) TODO update to copy customer deposit function
-
-			//checks if deposit passed
-			// if err != nil {
-			// 	fmt.Println("ERROR: ", err)
-			// 	return
-			// }
-
-			//makes a new balance check
 
 			fmt.Printf("Enter the quantity of each denomination you're depositing in deposit.txt \n")
 			fmt.Printf("Each line is the next higher denomination 1,5,10,20,50,100, e.g. a 3 on line 6 is $300 \n")
