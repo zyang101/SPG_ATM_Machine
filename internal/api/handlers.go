@@ -186,17 +186,6 @@ func WithdrawBalance(db *sql.DB, username string, amount float64) (float64, erro
 		return 0, fmt.Errorf("failed to update balance: %v", err)
 	}
 
-	//Update the atm's balance
-	stmtUpdATM, err := db.Prepare("UPDATE atm SET balance = balance - ? WHERE id = 1")
-	if err != nil {
-		return 0, err
-	}
-	defer stmtUpdATM.Close()
-
-	if _, err = stmtUpdATM.Exec(amount); err != nil {
-		return 0, fmt.Errorf("failed to update ATM balance: %v", err)
-	}
-
 	userID, err := GetUserID(db, username)
 	if err != nil {
 		return newBalance, fmt.Errorf("could not get user id: %v", err)
