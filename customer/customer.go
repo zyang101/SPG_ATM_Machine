@@ -27,7 +27,7 @@ func Menu(username string) {
 	}
 	viewChoices()
 	for {
-		choice := utils.TypeInput("Enter your choice (0-5): ")
+		choice := utils.TypeInput("Enter your choice (0-6): ")
 		switch choice {
 		case "0":
 			viewChoices()
@@ -72,7 +72,7 @@ func Menu(username string) {
 			amountStr := utils.TypeInput("Enter how much money to withdraw: ")
 			amount, _ := utils.ParseAmount(amountStr)
 
-			if amount == 0	{
+			if amount == 0 {
 				continue
 			}
 
@@ -131,6 +131,11 @@ func Menu(username string) {
 				continue
 			}
 
+			if transferTarget == username {
+				fmt.Println("Invalid option")
+				continue
+			}
+
 			var role string
 			err = database.QueryRow("SELECT role FROM users WHERE username = ?", transferTarget).Scan(&role)
 			if err != nil {
@@ -179,7 +184,7 @@ func Menu(username string) {
 			}
 		case "5":
 			withdrawalLimit, depositLimit, err := api.GetATMLimits(database)
-			if err != nil	{
+			if err != nil {
 				fmt.Println("Failed Withdrawal/Deposit Limit Fetch")
 			}
 			fmt.Printf("Withdraw Limit: $%v\n", withdrawalLimit)
