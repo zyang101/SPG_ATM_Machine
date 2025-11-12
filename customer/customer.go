@@ -110,7 +110,7 @@ func Menu(username string) {
 			}
 			stmtCheck, err := database.Prepare("SELECT EXISTS(SELECT 1 FROM users WHERE username = ?)")
 			if err != nil {
-				fmt.Println("Specified username does not exist")
+				fmt.Println("Specified user does not exist")
 				continue
 			}
 			defer stmtCheck.Close()
@@ -133,7 +133,7 @@ func Menu(username string) {
 				continue
 			}
 			if role != "customer" {
-				fmt.Println("Specified username does not exist")
+				fmt.Println("Specified user does not exist")
 				continue
 			}
 
