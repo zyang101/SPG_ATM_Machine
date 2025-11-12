@@ -68,19 +68,39 @@ func Menu(username string) {
 			}
 			fmt.Printf("Your new balance is $%.2f \n", newBalance)
 		case "3":
-			// TODO make like cash handler withdraw by picking a denomination and checking if ATM has enough of that denomination
+
 			moneyWithdraw := utils.TypeInput("Enter how much money to withdraw: ")
-			val, err := strconv.ParseFloat(moneyWithdraw, 64)
+			amount, err := strconv.ParseFloat(moneyWithdraw, 64)
 			if err != nil {
 				fmt.Println("Invalid Input:", err)
 				continue
 			}
-			newBalance, err := api.WithdrawBalance(database, username, float64(val))
+
+			fmt.Println("Enter bill breakdown for withdrawal:")
+			nHundreds := utils.TypeInt("Hundreds: ")
+			nFifties := utils.TypeInt("Fifties: ")
+			nTwenties := utils.TypeInt("Twenties: ")
+			nTens := utils.TypeInt("Tens: ")
+			nFives := utils.TypeInt("Fives: ")
+			nOnes := utils.TypeInt("Ones: ")
+
+			denoms := []int{nOnes, nFives, nTens, nTwenties, nFifties, nHundreds}
+
+			err = api.WithdrawATM(database, amount, nHundreds, nFifties, nTwenties, nTens, nFives, nOnes)
 			if err != nil {
+				fmt.Println("ERROR:", err)
+				continue
+			}
+
+			newBalance, err := api.WithdrawBalance(database, username, float64(amount))
+			if err != nil {
+				_ = api.DepositATM(database, denoms)
+				fmt.Println("Transaction failed, withdrawal cancelled")
 				fmt.Println("Could not update balance:", err)
 				continue
 			}
 			fmt.Printf("Your new balance is $%.2f \n", newBalance)
+
 		case "4":
 			var transferTarget string
 			var transferAmt float64

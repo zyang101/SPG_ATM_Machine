@@ -88,7 +88,7 @@ func GetUserBalance(db *sql.DB, username string) (float64, error) {
 	return bal, nil
 }
 
-// Depost money to the user's account
+// Deposit money to the user's account
 func DepositBalance(db *sql.DB, username string, amount float64) (float64, error) {
 	//Retrieve the user's current balance
 	balance, err := GetUserBalance(db, username)
