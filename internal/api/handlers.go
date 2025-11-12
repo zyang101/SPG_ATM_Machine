@@ -462,6 +462,11 @@ func WithdrawATM(db *sql.DB, dec_amount float64, nHundreds, nFifties, nTwenties,
 		return fmt.Errorf("ATM does not have enough of one or more bill denominations")
 	}
 
+	if nHundreds < 0 || nFifties < 0 || nTwenties < 0 ||
+		nTens < 0 || nFives < 0 || nOnes < 0 {
+		return fmt.Errorf("ATM does not have enough of one or more bill denominations")
+	}
+
 	// Deduct bills
 	hundreds -= nHundreds
 	fifties -= nFifties
