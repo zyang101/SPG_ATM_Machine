@@ -32,7 +32,7 @@ func Connect() (*sql.DB, error) {
 	atmTable := `
     CREATE TABLE IF NOT EXISTS atm (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        balance REAL,
+        balance REAL as (SELECT SUM(ones * 1 + fives * 5 + tens * 10 + twenties * 20 + fifties * 50 + hundreds * 100) FROM atm) STORED,
 		withdrawal_limit REAL DEFAULT 0,
     	deposit_limit REAL DEFAULT 0,
 		ones INTEGER DEFAULT 0,

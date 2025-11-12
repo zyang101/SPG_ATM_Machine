@@ -473,15 +473,14 @@ func WithdrawATM(db *sql.DB, dec_amount float64, nHundreds, nFifties, nTwenties,
 	// Update DB
 	stmt, err := db.Prepare(`
 		UPDATE atm
-		SET balance = balance - ?,
-		    ones = ?, fives = ?, tens = ?, twenties = ?, fifties = ?, hundreds = ?
+		SET balance = ones = ?, fives = ?, tens = ?, twenties = ?, fifties = ?, hundreds = ?
 		WHERE id = 1`)
 	if err != nil {
 		return err
 	}
 	defer stmt.Close()
 
-	_, err = stmt.Exec(dec_amount, ones, fives, tens, twenties, fifties, hundreds)
+	_, err = stmt.Exec(ones, fives, tens, twenties, fifties, hundreds)
 	if err != nil {
 		return fmt.Errorf("failed to withdraw bills: %v", err)
 	}
@@ -512,20 +511,17 @@ func DepositATM(db *sql.DB, denoms []int) error {
 	fives += denoms[1]
 	ones += denoms[0]
 
-	depositTotal := (denoms[5] * 100) + (denoms[4] * 50) + (denoms[3] * 20) + (denoms[2] * 10) + (denoms[1] * 5) + (denoms[0] * 1)
-
 	// Update DB
 	stmt, err := db.Prepare(`
 		UPDATE atm
-		SET balance = balance + ?,
-		    ones = ?, fives = ?, tens = ?, twenties = ?, fifties = ?, hundreds = ?
+		SET balance = ones = ?, fives = ?, tens = ?, twenties = ?, fifties = ?, hundreds = ?
 		WHERE id = 1`)
 	if err != nil {
 		return err
 	}
 	defer stmt.Close()
 
-	_, err = stmt.Exec(depositTotal, ones, fives, tens, twenties, fifties, hundreds)
+	_, err = stmt.Exec(ones, fives, tens, twenties, fifties, hundreds)
 	if err != nil {
 		return fmt.Errorf("failed to deposit bills: %v", err)
 	}
