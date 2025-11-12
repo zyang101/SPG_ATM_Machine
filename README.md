@@ -24,7 +24,7 @@ Team Members: Johnson, Justin, Johnny, Reid, and Joshua
 
 **Login Directions:**
 
-1. Enter "go run main" to start program
+1. Enter "go run main.go" to start program
 2. Enter "Y" when prompted to continue
 3. Insert "ATM Card" by changing the value in ~/auth/idcard.txt
 

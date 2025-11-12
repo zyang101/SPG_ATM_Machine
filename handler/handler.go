@@ -66,7 +66,9 @@ func Menu(username string) {
 
 			amountStr := utils.TypeInput("Enter amount to Withdraw from the ATM: ")
 			amount, _ := utils.ParseAmount(amountStr)
-
+			if amount == 0	{
+				continue
+			}
 			fmt.Println("Enter bill breakdown for withdrawal:")
 			nHundreds := utils.TypeInt("Hundreds: ")
 			nFifties := utils.TypeInt("Fifties: ")
