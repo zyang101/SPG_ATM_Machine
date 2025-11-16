@@ -25,10 +25,13 @@ func (r *ProfilesRepository) Create(ctx context.Context, p *Profile) (int64, err
 	if r.db == nil {
 		return 0, errors.New("repo not initialized")
 	}
-	res, err := r.db.ExecContext(ctx,
-		`INSERT INTO profiles (homeowner_id, name, target_temp) VALUES (?,?,?)`,
-		p.HomeownerID, p.Name, p.TargetTemp,
+	query := fmt.Sprintf(
+		"INSERT INTO profiles (homeowner_id, name, target_temp) SELECT %d, '%s', %f",
+		p.HomeownerID,
+		p.Name,
+		p.TargetTemp,
 	)
+	res, err := r.db.ExecContext(ctx, query)
 	if err != nil {
 		return 0, err
 	}
