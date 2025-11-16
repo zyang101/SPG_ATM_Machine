@@ -4,20 +4,19 @@ import (
     "crypto/rand"
     "encoding/hex"
     "time"
+    "crypto/sha1"
+    "strings"
 
-    "golang.org/x/crypto/bcrypt"
 )
 
 func HashPassword(plain string) (string, error) {
-    hash, err := bcrypt.GenerateFromPassword([]byte(plain), bcrypt.DefaultCost)
-    if err != nil {
-        return "", err
-    }
-    return string(hash), nil
+    h := sha1.Sum([]byte(plain))
+    return hex.EncodeToString(h[:]), nil
 }
 
 func CheckPassword(hash, plain string) bool {
-    return bcrypt.CompareHashAndPassword([]byte(hash), []byte(plain)) == nil
+    h := sha1.Sum([]byte(plain))
+    return strings.EqualFold(hash, hex.EncodeToString(h[:]))
 }
 
 func NewToken() (string, error) {

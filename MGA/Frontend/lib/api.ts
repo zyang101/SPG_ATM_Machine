@@ -218,9 +218,11 @@ export async function listGuests(): Promise<GuestDTO[]> {
 }
 
 export async function createGuest(username: string, pin: string): Promise<number> {
+
+  const finalPin = pin && pin.trim() !== "" ? pin : "12345";
   const res = await api("/guests", {
     method: "POST",
-    body: JSON.stringify({ username, pin }),
+    body: JSON.stringify({ username, pin: finalPin }),
   });
   const data = await res.json();
   return data.id as number;
