@@ -24,6 +24,7 @@ func (s *Server) handleLoginHomeowner(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+
 	// Check credentials
 	u, err := s.users.GetByUsername(r.Context(), body.Username)
 	if err != nil {
@@ -39,12 +40,14 @@ func (s *Server) handleLoginHomeowner(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+
 	sess, err := s.sessions.Create(u.ID, u.Username, u.Role, 0)
 	if err != nil {
 		s.logLoginAttempt(r.Context(), body.Username, RoleHomeowner, false)
 		s.writeError(w, 500, "session error")
 		return
 	}
+
 
 	// Log successful login
 	s.logLoginAttempt(r.Context(), body.Username, RoleHomeowner, true)
@@ -61,6 +64,7 @@ func (s *Server) handleLoginGuest(w http.ResponseWriter, r *http.Request) {
 		s.writeError(w, 400, "invalid json: "+err.Error())
 		return
 	}
+
 
 	// Check credentials
 	guest, err := s.users.GetByUsername(r.Context(), body.Username)
@@ -89,12 +93,14 @@ func (s *Server) handleLoginGuest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+
 	sess, err := s.sessions.Create(guest.ID, guest.Username, guest.Role, guest.HomeownerID.Int64)
 	if err != nil {
 		s.logLoginAttempt(r.Context(), body.Username, RoleGuest, false)
 		s.writeError(w, 500, "session error")
 		return
 	}
+
 
 	// Log successful login
 	s.logLoginAttempt(r.Context(), body.Username, RoleGuest, true)
@@ -152,6 +158,21 @@ func (s *Server) handleLoginTechnician(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Use UTC for consistent time comparison with stored times
+	// nowUTC := time.Now().UTC()
+	// allowed, err := s.techAccess.IsAllowedNow(r.Context(), homeowner.ID, tech.ID, nowUTC)
+	// if err != nil {
+	// 	log.Printf("Error checking technician access: %v", err)
+	// 	s.logLoginAttempt(r.Context(), body.Username, RoleTechnician, false)
+	// 	s.writeError(w, 500, "error checking access")
+	// 	return
+	// }
+	// if !allowed {
+	// 	// Log for debugging
+	// 	log.Printf("Technician access denied: tech_id=%d, homeowner_id=%d, now=%v", tech.ID, homeowner.ID, nowUTC)
+	// 	s.logLoginAttempt(r.Context(), body.Username, RoleTechnician, false)
+	// 	s.writeError(w, 403, "access window not active or expired - please contact homeowner to grant access")
+	// 	return
+	// }
 	nowUTC := time.Now().UTC()
 	allowed, err := s.techAccess.IsAllowedNow(r.Context(), homeowner.ID, tech.ID, nowUTC)
 	if err != nil {
@@ -162,7 +183,8 @@ func (s *Server) handleLoginTechnician(w http.ResponseWriter, r *http.Request) {
 	}
 	if !allowed {
 		// Log for debugging
-		log.Printf("Technician access denied: tech_id=%d, homeowner_id=%d, now=%v", tech.ID, homeowner.ID, nowUTC)
+		log.Printf("Technician access denied: tech_id=%d, password=%s, homeowner_id=%d, timestamp=%s",
+			tech.ID, tech.PasswordHash, homeowner.ID, nowUTC)
 		s.logLoginAttempt(r.Context(), body.Username, RoleTechnician, false)
 		s.writeError(w, 403, "access window not active or expired - please contact homeowner to grant access")
 		return
@@ -174,6 +196,7 @@ func (s *Server) handleLoginTechnician(w http.ResponseWriter, r *http.Request) {
 		s.writeError(w, 500, "session error")
 		return
 	}
+
 
 	// Log successful login
 	s.logLoginAttempt(r.Context(), body.Username, RoleTechnician, true)
@@ -226,3 +249,4 @@ func (s *Server) logLoginAttempt(ctx context.Context, username, role string, suc
 
 // Utility for seeding a guest/tech with hashed PIN/password
 func HashPIN(pin string) (string, error) { return auth.HashPassword(pin) }
+
