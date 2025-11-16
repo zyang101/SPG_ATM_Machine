@@ -162,8 +162,7 @@ func (s *Server) handleLoginTechnician(w http.ResponseWriter, r *http.Request) {
 	}
 	if !allowed {
 		// Log for debugging
-		log.Printf("Technician access denied: tech_id=%d, password=%s, homeowner_id=%d, timestamp=%s",
-			tech.ID, tech.PasswordHash, homeowner.ID, nowUTC)
+		log.Printf("Technician access denied: tech_id=%d, homeowner_id=%d, now=%v", tech.ID, homeowner.ID, nowUTC)
 		s.logLoginAttempt(r.Context(), body.Username, RoleTechnician, false)
 		s.writeError(w, 403, "access window not active or expired - please contact homeowner to grant access")
 		return
