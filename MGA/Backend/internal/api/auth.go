@@ -11,7 +11,9 @@ import (
 
 	"mga_smart_thermostat/internal/auth"
 	"mga_smart_thermostat/internal/database"
+
 )
+
 
 func (s *Server) handleLoginHomeowner(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
@@ -23,7 +25,7 @@ func (s *Server) handleLoginHomeowner(w http.ResponseWriter, r *http.Request) {
 		s.writeError(w, 400, "invalid json")
 		return
 	}
-
+	
 	// Check credentials
 	u, err := s.users.GetByUsername(r.Context(), body.Username)
 	if err != nil {
@@ -38,14 +40,14 @@ func (s *Server) handleLoginHomeowner(w http.ResponseWriter, r *http.Request) {
 		s.writeError(w, 401, "invalid credentials")
 		return
 	}
-
+	
 	sess, err := s.sessions.Create(u.ID, u.Username, u.Role, 0)
 	if err != nil {
 		s.logLoginAttempt(r.Context(), body.Username, RoleHomeowner, false)
 		s.writeError(w, 500, "session error")
 		return
 	}
-
+	
 	// Log successful login
 	s.logLoginAttempt(r.Context(), body.Username, RoleHomeowner, true)
 	_ = json.NewEncoder(w).Encode(sess)
@@ -61,7 +63,7 @@ func (s *Server) handleLoginGuest(w http.ResponseWriter, r *http.Request) {
 		s.writeError(w, 400, "invalid json")
 		return
 	}
-
+	
 	// Check credentials
 	guest, err := s.users.GetByUsername(r.Context(), body.Username)
 	if err != nil {
@@ -88,14 +90,14 @@ func (s *Server) handleLoginGuest(w http.ResponseWriter, r *http.Request) {
 		s.writeError(w, 403, "not linked to homeowner")
 		return
 	}
-
+	
 	sess, err := s.sessions.Create(guest.ID, guest.Username, guest.Role, guest.HomeownerID.Int64)
 	if err != nil {
 		s.logLoginAttempt(r.Context(), body.Username, RoleGuest, false)
 		s.writeError(w, 500, "session error")
 		return
 	}
-
+	
 	// Log successful login
 	s.logLoginAttempt(r.Context(), body.Username, RoleGuest, true)
 	_ = json.NewEncoder(w).Encode(sess)
@@ -152,21 +154,21 @@ func (s *Server) handleLoginTechnician(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Use UTC for consistent time comparison with stored times
-	// nowUTC := time.Now().UTC()
-	// allowed, err := s.techAccess.IsAllowedNow(r.Context(), homeowner.ID, tech.ID, nowUTC)
-	// if err != nil {
-	// 	log.Printf("Error checking technician access: %v", err)
-	// 	s.logLoginAttempt(r.Context(), body.Username, RoleTechnician, false)
-	// 	s.writeError(w, 500, "error checking access")
-	// 	return
-	// }
-	// if !allowed {
-	// 	// Log for debugging
-	// 	log.Printf("Technician access denied: tech_id=%d, homeowner_id=%d, now=%v", tech.ID, homeowner.ID, nowUTC)
-	// 	s.logLoginAttempt(r.Context(), body.Username, RoleTechnician, false)
-	// 	s.writeError(w, 403, "access window not active or expired - please contact homeowner to grant access")
-	// 	return
-	// }
+	nowUTC := time.Now().UTC()
+	allowed, err := s.techAccess.IsAllowedNow(r.Context(), homeowner.ID, tech.ID, nowUTC)
+	if err != nil {
+		log.Printf("Error checking technician access: %v", err)
+		s.logLoginAttempt(r.Context(), body.Username, RoleTechnician, false)
+		s.writeError(w, 500, "error checking access")
+		return
+	}
+	if !allowed {
+		// Log for debugging
+		log.Printf("Technician access denied: tech_id=%d, homeowner_id=%d, now=%v", tech.ID, homeowner.ID, nowUTC)
+		s.logLoginAttempt(r.Context(), body.Username, RoleTechnician, false)
+		s.writeError(w, 403, "access window not active or expired - please contact homeowner to grant access")
+		return
+	}
 
 	sess, err := s.sessions.Create(tech.ID, tech.Username, tech.Role, homeowner.ID)
 	if err != nil {
@@ -174,11 +176,13 @@ func (s *Server) handleLoginTechnician(w http.ResponseWriter, r *http.Request) {
 		s.writeError(w, 500, "session error")
 		return
 	}
-
+	
 	// Log successful login
 	s.logLoginAttempt(r.Context(), body.Username, RoleTechnician, true)
 	_ = json.NewEncoder(w).Encode(sess)
 }
+
+
 
 // Auth Handlers
 func (s *Server) handleSignupHomeowner(w http.ResponseWriter, r *http.Request) {
@@ -226,6 +230,7 @@ func (s *Server) logLoginAttempt(ctx context.Context, username, role string, suc
 		log.Printf("Failed to log login attempt for username=%s, role=%s: %v", username, role, err)
 	}
 }
+
 
 // Utility for seeding a guest/tech with hashed PIN/password
 func HashPIN(pin string) (string, error) { return auth.HashPassword(pin) }
