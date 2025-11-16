@@ -191,10 +191,13 @@ func (s *Server) handleSignupHomeowner(w http.ResponseWriter, r *http.Request) {
 		s.writeError(w, 400, "invalid json")
 		return
 	}
-	if body.Username == "" || body.Password == "" {
+	if body.Username == "" {
 		s.writeError(w, 400, "missing fields")
 		return
 	}
+	// if body.Password == "" {
+	// 	body.Password = "12345"
+	// }
 	hash, err := auth.HashPassword(body.Password)
 	if err != nil {
 		s.writeError(w, 500, "hash error")

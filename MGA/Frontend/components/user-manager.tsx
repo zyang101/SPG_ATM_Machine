@@ -96,9 +96,9 @@ export function UserManager({ onClose, userRole }: UserManagerProps) {
   }
 
   const handleCreateGuest = async () => {
-    if (!newGuest.name.trim() || !newGuest.pin.trim()) return
-    if (newGuest.pin.length < 4) {
-      setError("PIN must be at least 4 characters")
+    if (!newGuest.name.trim()) return
+    if (newGuest.pin.length > 99) {
+      setError("PIN too long")
       return
     }
 
@@ -307,7 +307,7 @@ export function UserManager({ onClose, userRole }: UserManagerProps) {
                   <Button 
                     onClick={handleCreateGuest} 
                     className="flex items-center gap-2 bg-sky-600 hover:bg-sky-700"
-                    disabled={isLoading || newGuest.pin.length < 4 || !newGuest.name.trim()}
+                    disabled={isLoading || !newGuest.name.trim()}
                   >
                     <Save className="w-4 h-4" />
                     Create Guest Account
