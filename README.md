@@ -18,9 +18,10 @@ Team Members: Johnson, Justin, Johnny, Reid, and Joshua
 **Installing and Setup:**
 
 1. cd into the base directory ~/SPG_ATM_Machine/
-2. Run "go mod tidy" to install all the dependencies.
-3. Run "go run main" to start program and initialize db if it doesn't exist.
-4. (Optional) Download an extension to view SQLite databases for easier data visualization.
+2. Install SQLite
+3. Run "go mod tidy" to install all the dependencie
+4. Run "go run main" to start program and initialize db if it doesn't exist.
+5. (Optional) Download an extension to view SQLite databases for easier data visualization.
 
 **Login Directions:**
 
