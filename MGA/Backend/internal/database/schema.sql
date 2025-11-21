@@ -137,8 +137,7 @@ CREATE TABLE IF NOT EXISTS login_attempts (
   success BOOLEAN NOT NULL,
   attempted_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
-ALTER TABLE login_attempts
-ADD COLUMN password TEXT DEFAULT 'unknown';
+
 -- index to speed frontend polling by status
 CREATE INDEX IF NOT EXISTS idx_guest_verifications_status ON guest_verifications(status);
 

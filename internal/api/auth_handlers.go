@@ -53,34 +53,33 @@ func GetUserAuth(db *sql.DB, username string) (*UserAuthInfo, error) {
 
 // Increments the failed attempts for a user.
 func IncrementFailedAttempts(db *sql.DB, username string) (int, bool, error) {
-    stmt, err := db.Prepare("SELECT failed_attempts FROM users WHERE username = ?")
-    if err != nil {
-        return 0, false, err
-    }
-    defer stmt.Close()
+	stmt, err := db.Prepare("SELECT failed_attempts FROM users WHERE username = ?")
+	if err != nil {
+		return 0, false, err
+	}
+	defer stmt.Close()
 
-    var attempts int
-    if err := stmt.QueryRow(username).Scan(&attempts); err != nil {
-        return 0, false, err
-    }
+	var attempts int
+	if err := stmt.QueryRow(username).Scan(&attempts); err != nil {
+		return 0, false, err
+	}
 
-    attempts++
-    locked := false
-    if attempts >= 3 {
-        locked = true
-        _, err = db.Exec("UPDATE users SET failed_attempts = ?, locked = 1 WHERE username = ?", attempts, username)
-    } else {
-        _, err = db.Exec("UPDATE users SET failed_attempts = ? WHERE username = ?", attempts, username)
-    }
-    return attempts, locked, err
+	attempts++
+	locked := false
+	if attempts >= 3 {
+		locked = true
+		_, err = db.Exec("UPDATE users SET failed_attempts = ?, locked = 1 WHERE username = ?", attempts, username)
+	} else {
+		_, err = db.Exec("UPDATE users SET failed_attempts = ? WHERE username = ?", attempts, username)
+	}
+	return attempts, locked, err
 }
 
 // Resets failed attempts to 0 for the user.
 func ResetFailedAttempts(db *sql.DB, username string) error {
-    _, err := db.Exec("UPDATE users SET failed_attempts = 0 WHERE username = ?", username)
-    return err
+	_, err := db.Exec("UPDATE users SET failed_attempts = 0 WHERE username = ?", username)
+	return err
 }
-
 
 // Resets failed attempts and unlocks a user's account
 func UnlockAccount(db *sql.DB, username string) error {
