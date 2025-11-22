@@ -2,11 +2,22 @@
   "name": "Thermostat",
   "version": "0.1.0",
   "private": true,
+
+  "bin": "./node_modules/next/dist/bin/next",
+
+  "pkg": {
+    "scripts": "node_modules/next/dist/**",
+    "assets": [
+      ".next/**/*",
+      "public/**/*"
+    ]
+  },
+
   "scripts": {
     "build": "next build",
-    "dev": "next dev",
+    "dev": "next dev -p 3000",
     "lint": "eslint .",
-    "start": "next start"
+    "start": "next start -p 3000"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",

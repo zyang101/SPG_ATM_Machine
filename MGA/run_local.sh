@@ -20,15 +20,43 @@ cleanup() {
 # Set trap to cleanup on script exit
 trap cleanup SIGINT SIGTERM EXIT
 
-echo "checking go dependencies"
+OS="$(uname -s | tr '[:upper:]' '[:lower:]')"
 
+if [[ "$OS" == *mingw* ]] || [[ "$OS" == *msys* ]] || [[ "$OS" == *cygwin* ]]; then
+    PLATFORM="windows"
+elif [[ "$OS" == "linux" ]]; then
+    PLATFORM="linux"
+else
+    echo "Unknown OS: $OS"
+    exit 1
+fi
+
+echo "Detected platform: $PLATFORM"
+
+cd Backend || { echo "Backend folder not found!" >&2; exit 1; }
+
+if [[ $PLATFORM == "windows" ]]; then
+    BACKEND="./smart_thermostat.exe"
+else
+    BACKEND="./smart_thermostat"
+fi
+
+if [ ! -f "$BACKEND" ]; then
+    echo "Backend executable not found: $BACKEND"
+    exit 1
+fi
+
+echo "Starting backend using: $BACKEND"
+
+echo "checking go dependencies"
+cd ..
 # Check for Go installation
 if command -v go &> /dev/null; then
     cd Backend || { echo "Backend folder not found!" >&2; exit 1; }
-    go mod download >/dev/null 2>&1 || { echo "Backend dependency install failed." >&2; exit 1; }
-    go mod tidy >/dev/null 2>&1 || { echo "Backend dependency tidy failed." >&2; exit 1; }
+    # go mod download >/dev/null 2>&1 || { echo "Backend dependency install failed." >&2; exit 1; }
+    # go mod tidy >/dev/null 2>&1 || { echo "Backend dependency tidy failed." >&2; exit 1; }
     echo "Starting backend..."
-    MGA_SEED=1 MGA_HTTP_ADDR=:8080 go run ./cmd/MGA_SMART_THERMOSTAT >/dev/null 2>&1 &
+    MGA_SEED=1 MGA_HTTP_ADDR=:8080 $BACKEND >/dev/null 2>&1 &
     BACKEND_PID=$!
     sleep 2
     if ! kill -0 $BACKEND_PID 2>/dev/null; then
