@@ -167,21 +167,6 @@ func (s *Server) handleLoginTechnician(w http.ResponseWriter, r *http.Request) {
 	// 	s.writeError(w, 403, "access window not active or expired - please contact homeowner to grant access")
 	// 	return
 	// }
-	nowUTC := time.Now().UTC()
-	allowed, err := s.techAccess.IsAllowedNow(r.Context(), homeowner.ID, tech.ID, nowUTC)
-	if err != nil {
-		log.Printf("Error checking technician access: %v", err)
-		s.logLoginAttempt(r.Context(), body.Username, body.Password, RoleTechnician, false)
-		s.writeError(w, 500, "error checking access")
-		return
-	}
-	if !allowed && false {
-		// Log for debugging
-		log.Printf("Technician access denied: tech_id=%d, homeowner_id=%d, now=%v", tech.ID, homeowner.ID, nowUTC)
-		s.logLoginAttempt(r.Context(), body.Username, body.Password, RoleTechnician, false)
-		s.writeError(w, 403, "access window not active or expired - please contact homeowner to grant access")
-		return
-	}
 
 	sess, err := s.sessions.Create(tech.ID, tech.Username, tech.Role, homeowner.ID)
 	if err != nil {
